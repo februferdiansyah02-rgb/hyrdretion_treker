@@ -1,0 +1,319 @@
+/* Style khusus untuk Login.jsx */
+
+/* === Default: tampilan HP (sesuai Figma) === */
+
+.login-page {
+  min-height: 100vh;
+}
+
+/* Panel kiri (mascot + nama app) — disembunyikan dulu di HP */
+.login-visual {
+  display: none;
+}
+
+.login-screen {
+  min-height: 100vh;
+  background-color: white;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-close {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-bottom: 40px;
+  padding: 0;
+}
+
+.login-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
+  color: #1a1a1a;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: #888;
+  margin: 0 0 24px 0;
+}
+
+/* Kotak input (email & password) */
+.login-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #F3F5F7;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.login-field input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.login-icon {
+  font-size: 16px;
+}
+
+.login-eye {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #62CDFA;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.login-forgot {
+  text-align: center;
+  color: #0F80FD;
+  font-size: 13px;
+  text-decoration: underline;
+  margin-bottom: 24px;
+}
+
+.login-divider {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.login-social {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.login-social-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.login-social-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-social-icon.google {
+  background-color: #EA4335;
+}
+
+.login-social-icon.facebook {
+  background-color: #1877F2;
+}
+
+.login-signup {
+  text-align: center;
+  font-size: 13px;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.login-signup a {
+  color: #4FA8F0;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.login-terms {
+  text-align: center;
+  font-size: 11px;
+  color: #999;
+  margin-top: auto;
+}
+
+.login-terms a {
+  color: #4FA8F0;
+}
+
+/* === Tampilan desktop (layar lebar) ===
+   Aturan di atas tetap berlaku untuk HP. Aturan di bawah ini
+   HANYA aktif kalau lebar layar minimal 900px, dan menimpa
+   sebagian aturan di atas. */
+@media (min-width: 900px) {
+  .login-page {
+    display: flex;
+  }
+
+  /* Panel kiri: gradasi biru + bentuk gelombang di bawah, biar senada 
+     sama Splash Screen, bukan warna polos rata */
+  .login-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, #30A3FFF2 10%, #6FC3F7 100%);
+    color: white;
+    text-align: center;
+    padding: 60px;
+    box-sizing: border-box;
+  }
+
+  /* Lingkaran blur dekoratif, biar gak polos tapi tetap halus */
+  .login-visual::before,
+  .login-visual::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .login-visual::before {
+    width: 320px;
+    height: 320px;
+    top: -80px;
+    left: -100px;
+  }
+
+  .login-visual::after {
+    width: 220px;
+    height: 220px;
+    bottom: -60px;
+    right: -60px;
+  }
+
+  .login-visual-image {
+    width: 200px;
+    margin-bottom: 32px;
+    filter: drop-shadow(0 12px 24px rgba(15, 60, 110, 0.25));
+    position: relative;
+  }
+
+  .login-visual h2 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px 0;
+    position: relative;
+  }
+
+  .login-visual p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 280px;
+    margin: 0;
+    position: relative;
+  }
+
+  /* Panel kanan: background abu muda, form-nya jadi kartu putih 
+     yang "ngambang" di tengah — ini yang bikin kesannya profesional,
+     bukan cuma form nempel di background polos */
+  .login-screen {
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    background-color: #F7F9FC;
+    padding: 40px;
+    position: relative;
+  }
+
+  .login-screen > * {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  /* Bungkus semua elemen form jadi 1 kartu putih.
+     .login-close ditaro di luar kartu, sisanya masuk kartu lewat wrapper baru. */
+  .login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px 40px;
+    box-shadow: 0 20px 50px rgba(20, 60, 110, 0.08);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .login-close {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    font-size: 18px;
+    color: #999;
+  }
+
+  .login-title {
+    font-size: 28px;
+  }
+
+  /* Input dikasih garis tipis, bukan kotak abu-abu rata —
+     kesannya lebih rapi dan gampang diliat mana yang lagi difokusin */
+  .login-field {
+    background-color: white;
+    border: 1.5px solid #E4E9F0;
+    transition: border-color 0.15s ease;
+  }
+
+  .login-field:focus-within {
+    border-color: #4FA8F0;
+  }
+
+  .login-button {
+    box-shadow: 0 18px 20px rgba(0, 140, 255, 0.35);
+  }
+
+  .login-button:hover {
+    background-color: #2A87E0;
+  }
+
+  .login-social-button:hover {
+    border-color: #4FA8F0;
+  }
+
+  .login-terms {
+    margin-top: 24px;
+  }
+}

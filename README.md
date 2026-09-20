@@ -1,16 +1,40 @@
-# React + Vite
+# Hydration - Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## About Project
 
-Currently, two official plugins are available:
+Hydration adalah aplikasi yang dibuat untuk membantu meningkatkan kesadaran masyarakat dalam memenuhi kebutuhan minum sehari-hari. Saat ini, banyak orang lebih memilih minuman berasa dibandingkan air putih, sehingga kebutuhan cairan harian sering kali kurang diperhatikan. Melalui aplikasi ini, pengguna dapat mencatat konsumsi air, melihat statistik hidrasi, dan mendapatkan pengingat untuk minum secara rutin.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## UI/UX Design
 
-## React Compiler
+### Home Page
+![Home Page](./ui-ux/Home%20page.jpg)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Light Daily Stats
+![Light Daily Stats](./ui-ux/Light%20daily%20stats.png)
 
-## Expanding the ESLint configuration
+### Light Monthly Stats
+![Light Monthly Stats](./ui-ux/Light%20monthly%20stats.png)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Light Weekly Stats
+![Light Weekly Stats](./ui-ux/Light%20weekly%20stats.png)
+
+### Onboarding 1
+![Onboarding 1](./ui-ux/Onboarding%201.jpg)
+
+### Onboarding 2
+![Onboarding 2](./ui-ux/Onboarding%202.jpg)
+
+### Onboarding 3
+![Onboarding 3](./ui-ux/Onboarding%203.jpg)
+
+### Profile
+![Profile](./ui-ux/Profile.jpg)
+
+### Reminder
+![Reminder](./ui-ux/Reminder.jpg)
+
+### Reminder 1
+![Reminder 1](./ui-ux/Reminder-1.jpg)
+
+### Splash Screen
+![Splash Screen](./ui-ux/Splash%20Screen.jpg)

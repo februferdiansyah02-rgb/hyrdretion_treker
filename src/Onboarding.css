@@ -1,0 +1,75 @@
+/* Style khusus untuk Onboarding.jsx */
+
+.onboarding-screen {
+  height: 100vh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.onboarding-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #4FA8F0;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.onboarding-image {
+  width: 220px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.onboarding-title {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.onboarding-description {
+  font-size: 14px;
+  text-align: center;
+  color: #888;
+  margin: 0;
+}
+
+.onboarding-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  margin-bottom: 24px;
+}
+
+.onboarding-dot {
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: #E0E0E0;
+}
+
+.onboarding-dot.active {
+  background-color: #4FA8F0;
+}
+
+.onboarding-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #30A3FF;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}

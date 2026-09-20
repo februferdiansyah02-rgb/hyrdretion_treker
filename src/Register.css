@@ -1,0 +1,166 @@
+/* Style khusus untuk Register.jsx */
+
+.register-page {
+  min-height: 100vh;
+}
+
+.register-screen {
+  min-height: 100vh;
+  background-color: white;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-close {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-bottom: 40px;
+  padding: 0;
+}
+
+.register-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
+  color: #1a1a1a;
+}
+
+.register-subtitle {
+  font-size: 14px;
+  color: #888;
+  margin: 0 0 24px 0;
+}
+
+/* Kotak input (Full Name, Email, No. HP, Password) */
+.register-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #F3F5F7;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.register-field input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.register-icon {
+  font-size: 16px;
+}
+
+.register-code {
+  font-size: 14px;
+  color: #444;
+  padding-right: 6px;
+  border-right: 1px solid #ddd;
+}
+
+.register-eye {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.register-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #4FA8F0;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.register-login {
+  text-align: center;
+  font-size: 13px;
+  color: #444;
+}
+
+.register-login a {
+  color: #4FA8F0;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* === Tampilan desktop, gaya sama kayak Login.css ===
+   supaya konsisten satu sama lain */
+@media (min-width: 900px) {
+  .register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #F7F9FC;
+  }
+
+  .register-screen {
+    min-height: auto;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    padding: 40px;
+  }
+
+  .register-screen > * {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .register-close {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    font-size: 18px;
+    color: #999;
+  }
+
+  .register-card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px 40px;
+    box-shadow: 0 20px 50px rgba(20, 60, 110, 0.08);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .register-title {
+    font-size: 28px;
+  }
+
+  .register-field {
+    background-color: white;
+    border: 1.5px solid #E4E9F0;
+    transition: border-color 0.15s ease;
+  }
+
+  .register-field:focus-within {
+    border-color: #4FA8F0;
+  }
+
+  .register-button {
+    box-shadow: 0 8px 20px rgba(79, 168, 240, 0.35);
+  }
+
+  .register-button:hover {
+    background-color: #2A87E0;
+  }
+}

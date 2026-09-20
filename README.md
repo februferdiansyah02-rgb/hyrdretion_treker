@@ -10,13 +10,13 @@ Hydration adalah aplikasi yang dibuat untuk membantu meningkatkan kesadaran masy
 ![Home Page](./ui-ux/Home%20page.jpg)
 
 ### Light Daily Stats
-![Light Daily Stats](./ui-ux/Light%20daily%20stats.png)
+![Light Daily Stats](./ui-ux/Light%20daily%20stats%20page.png)
 
 ### Light Monthly Stats
-![Light Monthly Stats](./ui-ux/Light%20monthly%20stats.png)
+![Light Monthly Stats](./ui-ux/Light%20monthly%20stats%20page.png)
 
 ### Light Weekly Stats
-![Light Weekly Stats](./ui-ux/Light%20weekly%20stats.png)
+![Light Weekly Stats](./ui-ux/Light%20weekly%20stats%20page.png)
 
 ### Onboarding 1
 ![Onboarding 1](./ui-ux/Onboarding%201.jpg)

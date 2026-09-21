@@ -11,17 +11,9 @@ Hydration adalah aplikasi yang dibuat untuk membantu meningkatkan kesadaran masy
 
 ## UI/UX Design
 
-### Home Page
-![Home Page](./ui-ux/Home%20page.jpg)
+### Splash Screen
+![Splash Screen](./ui-ux/Splash%20Screen.jpg)
 
-### Light Daily Stats
-![Light Daily Stats](./ui-ux/Light%20daily%20stats%20page.png)
-
-### Light Monthly Stats
-![Light Monthly Stats](./ui-ux/Light%20monthly%20stats%20page.png)
-
-### Light Weekly Stats
-![Light Weekly Stats](./ui-ux/Light%20weekly%20stats%20page.png)
 
 ### Onboarding 1
 ![Onboarding 1](./ui-ux/Onboarding%201.jpg)
@@ -32,8 +24,37 @@ Hydration adalah aplikasi yang dibuat untuk membantu meningkatkan kesadaran masy
 ### Onboarding 3
 ![Onboarding 3](./ui-ux/Onboarding%203.jpg)
 
-### Profile
-![Profile](./ui-ux/Profile.jpg)
+
+### Log In
+![Log In](./ui-ux/Log%20In.jpg)
+
+
+### Sign In
+![Sign In](./ui-ux/Sign%20Up.jpg)
+
+
+### Forgot Password
+![Forgot Password](./ui-ux/Forgot%20password.jpg)
+
+
+
+### Home Page
+![Home Page](./ui-ux/Home%20page.jpg)
+![Home Desktop](./ui-ux/Home%20desktop.jpg)
+
+
+### Light Daily Stats
+![Light Daily Stats](./ui-ux/Light%20daily%20stats%20page.png)
+
+### Light Monthly Stats
+![Light Monthly Stats](./ui-ux/Light%20monthly%20stats%20page.png)
+
+### Light Weekly Stats
+![Light Weekly Stats](./ui-ux/Light%20weekly%20stats%20page.png)
+
+### Light Stats Desktop
+![Light Stats Desktop](./ui-ux/Light%20stats%20desktop.jpg)
+
 
 ### Reminder
 ![Reminder](./ui-ux/Reminder.jpg)
@@ -41,5 +62,12 @@ Hydration adalah aplikasi yang dibuat untuk membantu meningkatkan kesadaran masy
 ### Reminder 1
 ![Reminder 1](./ui-ux/Reminder-1.jpg)
 
-### Splash Screen
-![Splash Screen](./ui-ux/Splash%20Screen.jpg)
+
+### Profile
+![Profile](./ui-ux/Profile.jpg)
+
+
+### Log Out
+![Log Out](./ui-ux/Log%20Out.jpg)
+![Logged Out](./ui-ux/Logged%20Out.jpg)
+

@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, Bell, FileText, User } from 'lucide-react';
 import logo from '../assets/logo.png'; 
 
 export default function Menu({ activeTab, setActiveTab }) {
+  const [userName, setUserName] = useState('Mayonggg');
+
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+      setUserName(savedName);
+    }
+  }, []);
+
   const navItems = [
     { name: 'Home', icon: Home },
     { name: 'Reminder', icon: Bell },
@@ -75,7 +85,8 @@ export default function Menu({ activeTab, setActiveTab }) {
           className="w-10 h-10 rounded-full bg-amber-100"
         />
         <div>
-          <h4 className="text-sm font-bold text-sky-500 leading-tight">Mayonggg</h4>
+      
+          <h4 className="text-sm font-bold text-sky-500 leading-tight">{userName}</h4>
           <p className="text-xs text-gray-400">Pro member</p>
         </div>
       </div>

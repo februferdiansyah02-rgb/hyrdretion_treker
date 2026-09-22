@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Droplet } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 export default function HomePage({ onAddWater, totalWater = 500 }) {
+
+  const [userName, setUserName] = useState('Mayonggg');
+
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+      setUserName(savedName);
+    }
+  }, []);
+
   const quickAddOptions = [
     { label: '250 ML', value: 250 },
     { label: '500 ML', value: 500 },
@@ -16,15 +27,16 @@ export default function HomePage({ onAddWater, totalWater = 500 }) {
       <div className="lg:col-span-2 flex flex-col gap-6">
         <div>
           <h3 className="text-gray-500 font-bold text-lg sm:text-xl">Good afternoon</h3>
-          <h1 className="text-sky-400 font-extrabold text-3xl sm:text-4xl tracking-tight">Mayonggg</h1>
+       
+          <h1 className="text-sky-400 font-extrabold text-3xl sm:text-4xl tracking-tight">{userName}</h1>
         </div>
 
-        <div className="relative w-full  from-sky-700 to-sky-500 rounded-3xl p-5 sm:p-6 h-56 sm:h-60 flex flex-col justify-between overflow-hidden shadow-lg shadow-sky-100/50 border border-sky-100">
+        <div className="relative w-full  from-sky-400 to-sky-500 rounded-3xl p-5 sm:p-6 h-56 sm:h-60 flex flex-col justify-between overflow-hidden shadow-lg shadow-sky-100/50 border border-sky-100">
           <div className="z-10">
             <span className="text-sky-600 font-extrabold text-xs sm:text-sm tracking-wide bg-white/70 px-3 py-1 rounded-full">
               11:00 AM
             </span>
-            <p className="text-gray-600 text-xs sm:text-sm font-medium mt-2">
+            <p className="text-black text-xs sm:text-sm font-medium mt-2">
               Don't forget to drink!
             </p>
           </div>  

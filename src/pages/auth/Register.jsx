@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './../../../src/Register.css'
 import splashImage from '../../assets/secondIcon.png'
 import { COUNTRY_CODES } from './countryCodes'
 import { useCountryCodes } from './useCountryCodes'
+=======
+
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import './../../Register.css'
+>>>>>>> 04a80d8 (perbaiki halaman dasbor)
 
 export default function Register() {
   const navigate = useNavigate()
@@ -19,7 +26,16 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
 
   function handleCreateAccount() {
+<<<<<<< HEAD
     console.log('Daftar dengan:', { fullName, email, countryCode, phone, password })
+=======
+  
+    localStorage.setItem('userName',fullName);
+    console.log('Daftar dengan :',{fullName,email,phone,password});
+    
+
+    navigate('/dashboard')
+>>>>>>> 04a80d8 (perbaiki halaman dasbor)
   }
 
   return (
@@ -31,7 +47,7 @@ export default function Register() {
       </div>
 
       <div className="register-screen">
-        <button className="register-close">✕</button>
+        <button className="register-close" onClick={() => navigate('/')}>✕</button>
 
         <div className="register-card">
           <h1 className="register-title">Create an account</h1>
@@ -55,6 +71,7 @@ export default function Register() {
             />
           </div>
 
+<<<<<<< HEAD
           <div className="register-field register-field-phone">
             <select
               className="register-country-select"
@@ -68,6 +85,10 @@ export default function Register() {
                 </option>
               ))}
             </select>
+=======
+          <div className="register-field">
+            <span className="register-code">+234</span>
+>>>>>>> 04a80d8 (perbaiki halaman dasbor)
             <input
               type="tel"
               placeholder="Enter number"

@@ -5,14 +5,12 @@ import splashImage from '../../assets/firstIcon.png'
 
 export default function Login() {
   const navigate = useNavigate()
-
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const [showPassword, setShowPassword] = useState(false)
 
-  function handleLogin() { 
+  function handleLogin() {
     console.log('Login dengan:', email, password)
   }
 
@@ -33,7 +31,6 @@ export default function Login() {
 
           {/* Input email */}
           <div className="login-field">
-            <span className="login-icon">✉️</span>
             <input
               type="email"
               placeholder="Email address"
@@ -41,9 +38,8 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
- 
+
           <div className="login-field">
-            <span className="login-icon">🔒</span>
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
@@ -55,7 +51,6 @@ export default function Login() {
               className="login-eye"
               onClick={() => setShowPassword(!showPassword)}
             >
-              👁️
             </button>
           </div>
 
@@ -68,7 +63,14 @@ export default function Login() {
             LOG IN
           </button>
 
-          <a href="#" className="login-forgot">
+          <a
+            href="#"
+            className="login-forgot"
+            onClick={(e) => {
+              e.preventDefault()
+              navigate('/forgot-password')
+            }}
+          >
             Forgot Password
           </a>
 

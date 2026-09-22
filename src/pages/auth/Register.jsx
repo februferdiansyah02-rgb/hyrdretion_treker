@@ -1,26 +1,35 @@
-// Halaman Create Account / daftar akun baru.
-
-// Halaman Create Account / daftar akun baru.
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './../../../src/Register.css'
+import splashImage from '../../assets/secondIcon.png'
+import { COUNTRY_CODES } from './countryCodes'
+import { useCountryCodes } from './useCountryCodes'
 
 export default function Register() {
   const navigate = useNavigate()
+  const { countries, error } = useCountryCodes()
+
+  const countryOptions = countries.length > 0 ? countries : COUNTRY_CODES
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [countryCode, setCountryCode] = useState('+62')  
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   function handleCreateAccount() {
-    // TODO: nanti di sini data dikirim ke backend buat disimpan
-    console.log('Daftar dengan:', { fullName, email, phone, password })
+    console.log('Daftar dengan:', { fullName, email, countryCode, phone, password })
   }
 
   return (
     <div className="register-page">
+      <div className="register-visual">
+        <img src={splashImage} alt="" className="register-visual-image" />
+        <h2>Hydration Tracker</h2>
+        <p>Stay hydrated, stay healthy.</p>
+      </div>
+
       <div className="register-screen">
         <button className="register-close">✕</button>
 
@@ -29,7 +38,6 @@ export default function Register() {
           <p className="register-subtitle">Securely login to your account</p>
 
           <div className="register-field">
-            <span className="register-icon">👤</span>
             <input
               type="text"
               placeholder="Full Name"
@@ -39,7 +47,6 @@ export default function Register() {
           </div>
 
           <div className="register-field">
-            <span className="register-icon">✉️</span>
             <input
               type="email"
               placeholder="Email address"
@@ -48,10 +55,19 @@ export default function Register() {
             />
           </div>
 
-          {/* Kode negara ditulis manual dulu (+234 di Figma).
-              Nanti kalau perlu ganti-ganti negara, ini bisa dijadikan dropdown. */}
-          <div className="register-field">
-            <span className="register-code">+234</span>
+          <div className="register-field register-field-phone">
+            <select
+              className="register-country-select"
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              aria-label="Kode negara"
+            >
+              {countryOptions.map((country) => (
+                <option key={country.name} value={country.dialCode}>
+                  {country.flag} {country.dialCode}
+                </option>
+              ))}
+            </select>
             <input
               type="tel"
               placeholder="Enter number"
@@ -59,9 +75,13 @@ export default function Register() {
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
+          {error && (
+            <p className="register-hint">
+              Gagal ambil daftar negara dari backend, pakai daftar terbatas dulu.
+            </p>
+          )}
 
           <div className="register-field">
-            <span className="register-icon">🔒</span>
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
@@ -73,7 +93,6 @@ export default function Register() {
               className="register-eye"
               onClick={() => setShowPassword(!showPassword)}
             >
-              👁️
             </button>
           </div>
 

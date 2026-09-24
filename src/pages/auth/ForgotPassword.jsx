@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './../../../src/ForgotPassword.css'
-import splashImage from '../../assets/fiveIcon.png'
+import logo from '../../assets/fiveIcon.png'
+import splashImage from '../../assets/logo.png'
 
 export default function ForgotPassword() {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ export default function ForgotPassword() {
         </button>
 
         <div className="forgot-card">
-          <img src={splashImage} alt="" className="forgot-mascot" />
+          <img src={logo} alt="" className="forgot-mascot" />
 
           <h1 className="forgot-title">Forgot Password</h1>
           <p className="forgot-subtitle">

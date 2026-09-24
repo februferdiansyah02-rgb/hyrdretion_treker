@@ -86,9 +86,7 @@ export default function HomePage({ onAddWater, totalWater = 500 }) {
               </span>
 
               <h2 className="text-white font-extrabold text-2xl sm:text-3xl mt-4 leading-tight">
-                Don't forget
-                <br />
-                to drink!
+                Don't forget to drink!
               </h2>
 
               <p className="text-white/80 text-xs sm:text-sm mt-2">

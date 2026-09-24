@@ -9,6 +9,8 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 
 import Menu from "./components/Menu";
 import HomePage from "./pages/HomePage";
+import Reminder from "./pages/Reminder";
+import Profile from "./pages/Profile";
 
 function MainLayout() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -37,17 +39,13 @@ function MainLayout() {
               <PagePlaceholder title="Analysis" />
             )}
 
-            {activeTab === "Reminder" && (
-              <PagePlaceholder title="Reminder" />
-            )}
+            {activeTab === "Reminder" && <Reminder/>}
 
             {activeTab === "Notes" && (
               <PagePlaceholder title="Notes" />
             )}
 
-            {activeTab === "Profile" && (
-              <PagePlaceholder title="Profile" />
-            )}
+            {activeTab === "Profile" && <Profile />}
 
           </div>
         </main>

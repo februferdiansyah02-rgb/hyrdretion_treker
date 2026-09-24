@@ -31,7 +31,7 @@ export default function Menu({ activeTab, setActiveTab }) {
             className="w-12 h-12 rounded-full object-cover shadow-md shadow-sky-100 border border-sky-100"
           />
           <div>
-            <h1 className="font-extrabold text-slate-900">HYDRO TRACK</h1>
+            <h1 className="font-extrabold text-slate-900">HYDRATION TRACKER</h1>
             <p className="text-xs text-gray-400 font-medium">Health Monitor</p>
           </div>
         </div>

@@ -1,53 +1,84 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Splash from './pages/Splash';
-import Onboarding from './pages/Onboarding';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import Menu from './components/Menu';
-import Homepage from './pages/HomePage';
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Splash from "./pages/Splash";
+import Onboarding from "./pages/Onboarding";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+
+import Menu from "./components/Menu";
+import HomePage from "./pages/HomePage";
 
 function MainLayout() {
-  const [activeTab, setActiveTab] = useState('Home');
+  const [activeTab, setActiveTab] = useState("Home");
   const [totalWater, setTotalWater] = useState(500);
 
-  // Fungsi untuk menambah jumlah air ketika tombol cepat diklik
   const handleAddWater = (amount) => {
     setTotalWater((prev) => prev + amount);
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-slate-100 overflow-hidden">
+    <div className="min-h-screen bg-white">
+      <div className="flex min-h-screen">
+        <Menu activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <Menu activeTab={activeTab} setActiveTab={setActiveTab} />
+        <main className="flex-1 min-w-0 bg-white">
+          <div className="p-5 md:p-8 lg:p-10 pb-24 md:pb-10">
+            
+            {activeTab === "Home" && (
+              <HomePage
+                onAddWater={handleAddWater}
+                totalWater={totalWater}
+              />
+            )}
 
+            {activeTab === "Analysis" && (
+              <PagePlaceholder title="Analysis" />
+            )}
 
-      <main className="flex-1 flex flex-col overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
-        {activeTab === 'Home' && <Homepage onAddWater={handleAddWater} totalWater={totalWater} />}
-        {activeTab === 'Analysis' && <div className="text-2xl font-bold">Halaman Analysis</div>}
-        {activeTab === 'Reminder' && <div className="text-2xl font-bold">Halaman Reminder</div>}
-        {activeTab === 'Notes' && <div className="text-2xl font-bold">Halaman Notes</div>}
-        {activeTab === 'User' && <div className="text-2xl font-bold">Halaman User / Profile</div>}
-      </main>
+            {activeTab === "Reminder" && (
+              <PagePlaceholder title="Reminder" />
+            )}
+
+            {activeTab === "Notes" && (
+              <PagePlaceholder title="Notes" />
+            )}
+
+            {activeTab === "Profile" && (
+              <PagePlaceholder title="Profile" />
+            )}
+
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
 
+function PagePlaceholder({ title }) {
+  return (
+    <div className="w-full max-w-7xl mx-auto">
+      <h1 className="text-3xl font-extrabold text-slate-800">
+        {title}
+      </h1>
+
+      <p className="text-gray-400 mt-2">
+        Halaman {title} sedang dalam proses.
+      </p>
+    </div>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-   
         <Route path="/" element={<Splash />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
-   
         <Route path="/dashboard" element={<MainLayout />} />
       </Routes>
     </BrowserRouter>

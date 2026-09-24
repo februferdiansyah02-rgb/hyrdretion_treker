@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Bell, FileText, User } from 'lucide-react';
+import { Home, BarChart3, Bell, FileText, User } from 'lucide-react';
 import logo from '../assets/logo.png'; 
 
 export default function Menu({ activeTab, setActiveTab }) {
@@ -15,13 +15,14 @@ export default function Menu({ activeTab, setActiveTab }) {
 
   const navItems = [
     { name: 'Home', icon: Home },
+    { name: 'Analysis', icon: BarChart3 },
     { name: 'Reminder', icon: Bell },
     { name: 'Notes', icon: FileText },
-    { name: 'User', icon: User },
+    { name: 'Profile', icon: User },
   ];
 
   return (
-    <aside className="w-full md:w-64 bg-white border-t md:border-t-0 md:border-r border-gray-100 flex md:flex-col justify-between p-4 md:p-6 h-auto md:h-screen fixed md:static bottom-0 left-0 z-50 shadow-lg md:shadow-none">
+    <aside className="w-full md:w-64 md:shrink-0 bg-white border-t md:border-t-0 md:border-r border-gray-100 flex md:flex-col justify-between p-4 md:p-6 h-auto md:h-screen fixed md:static bottom-0 left-0 z-50 shadow-lg md:shadow-none">
       <div className="hidden md:block">
         <div className="flex items-center gap-3 mb-10">
           <img 

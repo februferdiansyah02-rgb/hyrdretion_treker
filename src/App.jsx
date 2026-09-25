@@ -9,6 +9,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 
 import Menu from "./components/Menu";
 import HomePage from "./pages/HomePage";
+import Analysis from "./pages/Analysis";
 import Reminder from "./pages/Reminder";
 import Profile from "./pages/Profile";
 
@@ -35,9 +36,7 @@ function MainLayout() {
               />
             )}
 
-            {activeTab === "Analysis" && (
-              <PagePlaceholder title="Analysis" />
-            )}
+            {activeTab === "Analysis" && <Analysis />}
 
             {activeTab === "Reminder" && <Reminder/>}
 

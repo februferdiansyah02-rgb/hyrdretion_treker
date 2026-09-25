@@ -32,7 +32,7 @@ export default function Menu({ activeTab, setActiveTab }) {
           />
           <div>
             <h1 className="font-extrabold text-slate-900">HYDRATION TRACKER</h1>
-            <p className="text-xs text-gray-400 font-medium">Health Monitor</p>
+            <p className="text-xs text-gray-400 font-medium">Healthy Life</p>
           </div>
         </div>
 

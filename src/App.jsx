@@ -38,7 +38,7 @@ function MainLayout() {
 
             {activeTab === "Analysis" && <Analysis />}
 
-            {activeTab === "Reminder" && <Reminder/>}
+            {activeTab === "Reminder" && <Reminder />}
 
             {activeTab === "Notes" && (
               <PagePlaceholder title="Notes" />

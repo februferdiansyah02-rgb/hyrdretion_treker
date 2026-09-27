@@ -11,6 +11,7 @@ import Menu from "./components/Menu";
 import HomePage from "./pages/HomePage";
 import Analysis from "./pages/Analysis";
 import Reminder from "./pages/Reminder";
+import Notes from "./pages/Notes";
 import Profile from "./pages/Profile";
 
 function MainLayout() {
@@ -40,29 +41,13 @@ function MainLayout() {
 
             {activeTab === "Reminder" && <Reminder />}
 
-            {activeTab === "Notes" && (
-              <PagePlaceholder title="Notes" />
-            )}
+            {activeTab === "Notes" && <Notes />}
 
             {activeTab === "Profile" && <Profile />}
 
           </div>
         </main>
       </div>
-    </div>
-  );
-}
-
-function PagePlaceholder({ title }) {
-  return (
-    <div className="w-full max-w-7xl mx-auto">
-      <h1 className="text-3xl font-extrabold text-slate-800">
-        {title}
-      </h1>
-
-      <p className="text-gray-400 mt-2">
-        Halaman {title} sedang dalam proses.
-      </p>
     </div>
   );
 }

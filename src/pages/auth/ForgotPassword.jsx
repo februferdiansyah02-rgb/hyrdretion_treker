@@ -1,5 +1,3 @@
-// Halaman Forgot Password: user masukin email, nanti (setelah backend jadi)
-// akan dikirimin link/kode buat reset password ke email itu.
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './../../../src/ForgotPassword.css'
@@ -10,13 +8,11 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('')
 
   function handleSendReset() {
-    // TODO: nanti di sini kita minta backend kirim email reset password
     console.log('Kirim reset password ke:', email)
   }
 
   return (
     <div className="forgot-page">
-      {/* Panel ini cuma muncul di desktop */}
       <div className="forgot-visual">
         <img src={splashImage} alt="" className="forgot-visual-image" />
         <h2>Hydration Tracker</h2>

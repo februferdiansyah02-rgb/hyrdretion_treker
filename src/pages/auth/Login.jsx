@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './../../../src/Login.css'
 import splashImage from '../../assets/firstIcon.png'
@@ -7,8 +7,44 @@ export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
   const [showPassword, setShowPassword] = useState(false)
+  const googleClientRef = useRef(null)
+
+  useEffect(() => { 
+    if (!window.google) return
+
+    googleClientRef.current = window.google.accounts.oauth2.initTokenClient({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      callback: handleGoogleResponse,
+    })
+  }, [])
+
+  function handleGoogleLogin() {
+    if (!googleClientRef.current) {
+      alert('Google belum siap, coba refresh halaman ini.')
+      return
+    } 
+    googleClientRef.current.requestAccessToken()
+  }
+
+  async function handleGoogleResponse(response) { 
+    try {
+      const res = await fetch('http://localhost:5174/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken: response.access_token }),
+      })
+
+      if (!res.ok) throw new Error('Login Google gagal di backend')
+
+      const data = await res.json()
+      console.log('Login Google berhasil:', data)
+    } catch (err) {
+      console.error(err)
+      alert('Login Google gagal, coba lagi.')
+    }
+  }
 
   function handleLogin() {
     console.log('Login dengan:', email, password)
@@ -29,7 +65,6 @@ export default function Login() {
           <h1 className="login-title">Login</h1>
           <p className="login-subtitle">Securely login to your account</p>
 
-          {/* Input email */}
           <div className="login-field">
             <input
               type="email"
@@ -38,7 +73,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-
+ 
           <div className="login-field">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -77,13 +112,9 @@ export default function Login() {
           <p className="login-divider">- OR Continue with -</p>
 
           <div className="login-social">
-            <button className="login-social-button">
+            <button className="login-social-button" onClick={handleGoogleLogin}>
               <span className="login-social-icon google">G</span>
               Google
-            </button>
-            <button className="login-social-button">
-              <span className="login-social-icon facebook">f</span>
-              Facebook
             </button>
           </div>
 
@@ -92,7 +123,7 @@ export default function Login() {
             <a
               href="#"
               onClick={(e) => {
-                e.preventDefault() 
+                e.preventDefault() // biar link-nya gak nyoba buka halaman baru
                 navigate('/register')
               }}
             >

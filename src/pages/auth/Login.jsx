@@ -1,142 +1,118 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import './../../../src/Login.css'
-import splashImage from '../../assets/firstIcon.png'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+
+import logo from "../../assets/loginIcon.jpg";
 
 export default function Login() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const googleClientRef = useRef(null)
+  const navigate = useNavigate();
 
-  useEffect(() => { 
-    if (!window.google) return
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    googleClientRef.current = window.google.accounts.oauth2.initTokenClient({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      scope: 'openid email profile',
-      callback: handleGoogleResponse,
-    })
-  }, [])
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-  function handleGoogleLogin() {
-    if (!googleClientRef.current) {
-      alert('Google belum siap, coba refresh halaman ini.')
-      return
-    } 
-    googleClientRef.current.requestAccessToken()
-  }
-
-  async function handleGoogleResponse(response) { 
-    try {
-      const res = await fetch('http://localhost:5174/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accessToken: response.access_token }),
-      })
-
-      if (!res.ok) throw new Error('Login Google gagal di backend')
-
-      const data = await res.json()
-      console.log('Login Google berhasil:', data)
-    } catch (err) {
-      console.error(err)
-      alert('Login Google gagal, coba lagi.')
-    }
-  }
-
-  function handleLogin() {
-    console.log('Login dengan:', email, password)
-  }
+    // sementara frontend
+    localStorage.setItem("userName", email.split("@")[0] || "Mayonggg");
+    navigate("/dashboard");
+  };
 
   return (
-    <div className="login-page"> 
-      <div className="login-visual">
-        <img src={splashImage} alt="" className="login-visual-image" />
-        <h2>Hydration Tracker</h2>
-        <p>Stay hydrated, stay healthy.</p>
-      </div>
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+      <div className="w-full max-w-md min-h-screen sm:min-h-0 flex flex-col">
 
-      <div className="login-screen">
-        <button className="login-close">✕</button>
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="pt-7 w-fit text-sky-400 hover:text-sky-500 transition"
+        >
+          <ArrowLeft className="w-7 h-7" />
+        </button>
 
-        <div className="login-card">
-          <h1 className="login-title">Login</h1>
-          <p className="login-subtitle">Securely login to your account</p>
+        {/* Header */}
+        <div className="flex flex-col items-center mt-12 sm:mt-10">
+          <img
+            src={logo}
+            alt="Hydrate"
+            className="w-28 h-28 sm:w-32 sm:h-32 object-contain"
+          />
 
-          <div className="login-field">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-black mt-1">
+            Log In
+          </h1>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleLogin} className="mt-10 sm:mt-12">
+          <div className="flex flex-col gap-5">
+
             <input
               type="email"
-              placeholder="Email address"
+              placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full h-12 bg-sky-50 rounded-xl px-4 text-sm text-slate-700 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-200"
             />
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-12 bg-sky-50 rounded-xl px-4 pr-12 text-sm text-slate-700 placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-200"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+
           </div>
- 
-          <div className="login-field">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+
+          {/* Forgot Password */}
+          <div className="flex justify-end mt-2">
             <button
               type="button"
-              className="login-eye"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm text-sky-400 hover:text-sky-500"
             >
+              Forgot Password?
             </button>
           </div>
 
-          <label className="login-remember">
-            <input type="checkbox" />
-            Remember me
-          </label>
-
-          <button className="login-button" onClick={handleLogin}>
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="w-full h-14 bg-sky-400 hover:bg-sky-500 text-white rounded-xl font-extrabold text-sm mt-24 sm:mt-28 active:scale-[0.98] transition"
+          >
             LOG IN
           </button>
 
-          <a
-            href="#"
-            className="login-forgot"
-            onClick={(e) => {
-              e.preventDefault()
-              navigate('/forgot-password')
-            }}
-          >
-            Forgot Password
-          </a>
-
-          <p className="login-divider">- OR Continue with -</p>
-
-          <div className="login-social">
-            <button className="login-social-button" onClick={handleGoogleLogin}>
-              <span className="login-social-icon google">G</span>
-              Google
-            </button>
-          </div>
-
-          <p className="login-signup">
-            Create An Account{' '}
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault() // biar link-nya gak nyoba buka halaman baru
-                navigate('/register')
-              }}
+          {/* Sign Up */}
+          <p className="text-center text-sm text-black mt-5">
+            Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/register")}
+              className="text-sky-400 font-medium"
             >
-              Sign Up
-            </a>
+              Sign up
+            </button>
           </p>
 
-          <p className="login-terms">
-            By clicking Continue, you agree to our <a href="#">Terms of Service</a> and{' '}
-            <a href="#">Privacy Policy</a>
-          </p>
-        </div>
+        </form>
       </div>
     </div>
-  )
+  );
 }

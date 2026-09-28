@@ -18,9 +18,37 @@ function MainLayout() {
   const [activeTab, setActiveTab] = useState("Home");
   const [totalWater, setTotalWater] = useState(500);
 
-  const handleAddWater = (amount) => {
-    setTotalWater((prev) => prev + amount);
+  const handleAddWater = async (amount) => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/drinks",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: amount,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      console.log("Data berhasil ditambahkan:", data);
+
+      setTotalWater((prev) => prev + amount);
+
+    } catch (error) {
+      console.error("Gagal menambahkan air:", error);
+    }
   };
+
+
 
   return (
     <div className="min-h-screen bg-white">

@@ -28,6 +28,7 @@ export default function Analysis() {
 
     return (
         <div className="w-full max-w-7xl mx-auto">
+
             {/* Hero */}
             <div className="relative overflow-hidden bg-sky-400 rounded-3xl p-6 sm:p-8 text-white mb-6">
                 <div className="absolute -right-20 -top-28 w-72 h-72 rounded-full bg-white/10" />
@@ -111,7 +112,9 @@ export default function Analysis() {
                     {/* Daily Insight */}
                     <div className="bg-sky-50 border border-sky-100 rounded-3xl p-5">
                         <div className="flex items-center justify-between">
-                            <h2 className="font-extrabold text-sky-500">Daily insight</h2>
+                            <h2 className="font-extrabold text-sky-500">
+                                Daily insight
+                            </h2>
 
                             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
                                 <Sparkles className="w-5 h-5 text-sky-400" />
@@ -144,9 +147,13 @@ export default function Analysis() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-7">
+
                             {/* Circle */}
                             <div className="relative w-40 h-40 shrink-0">
-                                <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
+                                <svg
+                                    className="w-full h-full -rotate-90"
+                                    viewBox="0 0 160 160"
+                                >
                                     <circle
                                         cx="80"
                                         cy="80"
@@ -204,6 +211,7 @@ export default function Analysis() {
 
                                 <div className="flex justify-between text-xs text-slate-400 mt-2">
                                     <span>Goal</span>
+
                                     <span className="text-sky-400 font-bold">
                                         {dailyGoal / 1000}L target
                                     </span>
@@ -241,27 +249,24 @@ export default function Analysis() {
                 </div>
 
                 {/* Right */}
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-0">
 
                     {/* Daily Visual */}
-                    <div className="relative h-72 bg-white border border-sky-100 rounded-3xl overflow-hidden shadow-sm">
-                        <div className="absolute top-5 left-5 z-10 flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-xl">
-                            <ImageIcon className="w-5 h-5 text-sky-400" />
-
-                            <span className="text-sm font-bold text-slate-700">
-                                Daily visual
-                            </span>
-                        </div>
+                    <div className="relative h-80 overflow-hidden rounded-t-3xl border border-sky-100 bg-white">
 
                         <img
                             src={logo}
                             alt="Hydration character"
                             className="absolute inset-0 w-full h-full object-contain"
                         />
+
+                        {/* Gradasi */}
+                        <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-white via-white/70 to-transparent pointer-events-none" />
                     </div>
 
                     {/* Weekly Summary */}
-                    <div className="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
+                    <div className="bg-white border-x border-b border-sky-100 rounded-b-3xl p-5 shadow-sm">
+
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="text-lg font-extrabold text-slate-700">
                                 Weekly summary
@@ -278,10 +283,13 @@ export default function Analysis() {
                                     key={item.day}
                                     className="flex items-center justify-between text-sm"
                                 >
-                                    <span className="text-slate-400">{item.day}</span>
+                                    <span className="text-slate-400">
+                                        {item.day}
+                                    </span>
 
                                     <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-sky-400" />
+
                                         <span className="font-bold text-sky-400">
                                             {item.value}
                                         </span>
@@ -290,6 +298,7 @@ export default function Analysis() {
                             ))}
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -300,7 +309,9 @@ function StatCard({ title, value, subtitle, icon }) {
     return (
         <div className="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
             <div className="flex items-center justify-between">
-                <p className="font-bold text-slate-700">{title}</p>
+                <p className="font-bold text-slate-700">
+                    {title}
+                </p>
 
                 <div className="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center">
                     {icon}
@@ -311,7 +322,9 @@ function StatCard({ title, value, subtitle, icon }) {
                 {value}
             </p>
 
-            <p className="text-xs text-slate-400 mt-2">{subtitle}</p>
+            <p className="text-xs text-slate-400 mt-2">
+                {subtitle}
+            </p>
         </div>
     );
 }
@@ -319,14 +332,21 @@ function StatCard({ title, value, subtitle, icon }) {
 function NoteItem({ icon, title, text }) {
     return (
         <div className="flex items-center gap-4 bg-sky-50/60 rounded-2xl p-4">
+
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
                 {icon}
             </div>
 
             <div className="min-w-0">
-                <p className="text-sm font-bold text-slate-700">{title}</p>
-                <p className="text-xs text-slate-400 mt-1">{text}</p>
+                <p className="text-sm font-bold text-slate-700">
+                    {title}
+                </p>
+
+                <p className="text-xs text-slate-400 mt-1">
+                    {text}
+                </p>
             </div>
+
         </div>
     );
 }

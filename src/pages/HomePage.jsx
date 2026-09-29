@@ -7,6 +7,7 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
   const [goal, setGoal] = useState(2000);
   const [customAmount, setCustomAmount] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const [currentTime, setCurrentTime] = useState("");
 
   useEffect(() => {
     const savedName = localStorage.getItem("userName");
@@ -15,6 +16,35 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
     if (savedName) setUserName(savedName);
     if (savedGoal) setGoal(Number(savedGoal));
   }, []);
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      hours = String(hours).padStart(2, "0");
+      minutes = String(minutes).padStart(2, "0");
+
+      setCurrentTime(`${hours}:${minutes} ${ampm}`);
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
   const quickAddOptions = [
     { label: "250 ML", value: 250 },
@@ -62,10 +92,9 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      {/* Greeting */}
       <div className="mb-6">
         <p className="text-gray-400 font-semibold text-sm sm:text-base">
-          Good afternoon
+          {getGreeting()}
         </p>
 
         <h1 className="text-sky-400 font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight">
@@ -73,11 +102,8 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
         </h1>
       </div>
 
-      {/* Dashboard */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6 items-start">
-        {/* Left */}
         <div className="lg:col-span-2 flex flex-col gap-5">
-          {/* Reminder Card */}
           <div className="relative w-full min-h-[220px] sm:min-h-[240px] rounded-3xl overflow-hidden bg-sky-400 p-5 sm:p-7 shadow-lg shadow-sky-100">
             <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10" />
 
@@ -85,7 +111,7 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
 
             <div className="relative z-10 max-w-[55%] sm:max-w-[60%]">
               <span className="inline-block bg-white/90 text-sky-500 px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
-                11:00 AM
+                {currentTime || "11:00 AM"}
               </span>
 
               <h2 className="text-white font-extrabold text-2xl sm:text-3xl mt-4 leading-tight">
@@ -113,7 +139,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
             />
           </div>
 
-          {/* Add Water Header */}
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800">
               Add Water Intake
@@ -124,7 +149,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
             </p>
           </div>
 
-          {/* Quick Add */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
             {quickAddOptions.map((item) => (
               <button
@@ -144,7 +168,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
               </button>
             ))}
 
-            {/* Custom */}
             <button
               onClick={() => setShowCustom(true)}
               className="bg-white border border-dashed border-sky-300 rounded-2xl p-4 sm:p-5 flex flex-col items-center justify-center gap-2 min-h-[110px] shadow-sm hover:bg-sky-50 hover:shadow-md active:scale-95 transition-all"
@@ -160,7 +183,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
           </div>
         </div>
 
-        {/* Right - Today's Progress */}
         <div className="bg-white border border-sky-100 rounded-3xl p-5 sm:p-6 shadow-sm w-full">
           <div className="flex items-center justify-between">
             <div>
@@ -178,7 +200,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
             </div>
           </div>
 
-          {/* Progress Circle */}
           <div className="flex justify-center my-8">
             <div className="relative w-44 h-44">
               <svg
@@ -221,7 +242,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
             </div>
           </div>
 
-          {/* Percentage */}
           <div className="text-center mb-6">
             <p className="text-3xl font-extrabold text-sky-400">
               {Math.round(progress)}%
@@ -232,7 +252,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
             </p>
           </div>
 
-          {/* Water Completed */}
           <div className="bg-sky-50 p-4 rounded-2xl border border-sky-100">
             <p className="text-xs text-gray-400">
               Water Completed
@@ -245,7 +264,6 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
         </div>
       </div>
 
-      {/* Custom Water Modal */}
       {showCustom && (
         <div className="fixed inset-0 z-[100] bg-black/30 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-xl">

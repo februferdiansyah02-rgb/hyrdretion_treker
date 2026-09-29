@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Splash from "./pages/Splash";
@@ -16,48 +16,69 @@ import Profile from "./pages/Profile";
 
 function MainLayout() {
   const [activeTab, setActiveTab] = useState("Home");
-  const [totalWater, setTotalWater] = useState(500);
+  const [totalWater, setTotalWater] = useState(0);
+
+  useEffect(() => {
+    const fetchDrinks = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/drinks");
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Gagal mengambil data minum");
+        }
+
+        const total = result.data.reduce(
+          (sum, drink) => sum + Number(drink.amount),
+          0
+        );
+
+        setTotalWater(total);
+      } catch (error) {
+        console.error("Gagal mengambil data minum:", error);
+      }
+    };
+
+    fetchDrinks();
+  }, []);
 
   const handleAddWater = async (amount) => {
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/drinks",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            amount: amount,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:3000/api/drinks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: amount,
+        }),
+      });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(result.message || "Gagal menambahkan air");
       }
 
-      console.log("Data berhasil ditambahkan:", data);
+      console.log("Data berhasil ditambahkan:", result);
 
-      setTotalWater((prev) => prev + amount);
-
+      setTotalWater((prev) => prev + Number(result.data.amount));
     } catch (error) {
       console.error("Gagal menambahkan air:", error);
     }
   };
 
-
-
   return (
     <div className="min-h-screen bg-white">
-      <div className="flex min-h-screen">
-        <Menu activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="flex h-screen overflow-hidden">
+        <Menu
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
 
-        <main className="flex-1 min-w-0 bg-white">
+        <main className="flex-1 min-w-0 bg-white overflow-y-auto">
           <div className="p-5 md:p-8 lg:p-10 pb-24 md:pb-10">
-            
+
             {activeTab === "Home" && (
               <HomePage
                 onAddWater={handleAddWater}

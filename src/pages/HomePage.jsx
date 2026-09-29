@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Droplet, Plus } from "lucide-react";
 import logo from "../assets/logo.png";
 
-export default function HomePage({ onAddWater, totalWater = 500 }) {
+export default function HomePage({ onAddWater, totalWater = 0 }) {
   const [userName, setUserName] = useState("Mayonggg");
   const [goal, setGoal] = useState(2000);
   const [customAmount, setCustomAmount] = useState("");
@@ -24,8 +24,10 @@ export default function HomePage({ onAddWater, totalWater = 500 }) {
   ];
 
   const progress = Math.min((totalWater / goal) * 100, 100);
+
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
+
   const progressOffset =
     circumference - (progress / 100) * circumference;
 
@@ -78,6 +80,7 @@ export default function HomePage({ onAddWater, totalWater = 500 }) {
           {/* Reminder Card */}
           <div className="relative w-full min-h-[220px] sm:min-h-[240px] rounded-3xl overflow-hidden bg-sky-400 p-5 sm:p-7 shadow-lg shadow-sky-100">
             <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10" />
+
             <div className="absolute -left-20 -bottom-20 w-56 h-56 rounded-full bg-white/10" />
 
             <div className="relative z-10 max-w-[55%] sm:max-w-[60%]">
@@ -86,7 +89,9 @@ export default function HomePage({ onAddWater, totalWater = 500 }) {
               </span>
 
               <h2 className="text-white font-extrabold text-2xl sm:text-3xl mt-4 leading-tight">
-                Don't forget to drink!
+                Don't forget
+                <br />
+                to drink!
               </h2>
 
               <p className="text-white/80 text-xs sm:text-sm mt-2">
@@ -229,21 +234,13 @@ export default function HomePage({ onAddWater, totalWater = 500 }) {
 
           {/* Water Completed */}
           <div className="bg-sky-50 p-4 rounded-2xl border border-sky-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-gray-400">
-                  Water Completed
-                </p>
+            <p className="text-xs text-gray-400">
+              Water Completed
+            </p>
 
-                <p className="text-lg font-extrabold text-sky-400 mt-1">
-                  {totalWater} ml
-                </p>
-              </div>
-
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <Plus className="w-5 h-5 text-sky-400" />
-              </div>
-            </div>
+            <p className="text-lg font-extrabold text-sky-400 mt-1">
+              {totalWater} ml
+            </p>
           </div>
         </div>
       </div>

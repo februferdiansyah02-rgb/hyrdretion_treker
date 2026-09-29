@@ -1,3 +1,5 @@
+const profileRoutes = require("./Routes/profileroutes");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -17,6 +19,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/drinks", drinkRoutes);
+app.use("/api/profile", profileRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);

@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Droplet, Plus } from "lucide-react";
 import logo from "../assets/logo.png";
 
-export default function HomePage({ onAddWater, totalWater = 0 }) {
+export default function HomePage({
+  onAddWater,
+  totalWater = 0,
+  highlightIntake = false,
+}) {
   const [userName, setUserName] = useState("Mayonggg");
   const [goal, setGoal] = useState(2000);
   const [customAmount, setCustomAmount] = useState("");
@@ -139,7 +143,12 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
             />
           </div>
 
-          <div>
+          <div
+            className={`rounded-3xl transition-all duration-500 ${highlightIntake
+                ? "ring-4 ring-sky-200 bg-sky-50/50 p-5 -m-5 animate-pulse"
+                : ""
+              }`}
+          >
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800">
               Add Water Intake
             </h2>
@@ -148,6 +157,16 @@ export default function HomePage({ onAddWater, totalWater = 0 }) {
               Choose how much water you drank
             </p>
           </div>
+
+          {highlightIntake && (
+            <div className="rounded-2xl bg-sky-50 border border-sky-100 p-4 flex items-center gap-3">
+              <Droplet className="w-5 h-5 text-sky-400 fill-sky-400 shrink-0" />
+
+              <p className="text-sm font-bold text-sky-500">
+                Pilih jumlah air di bawah untuk mencatat yang baru kamu minum
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
             {quickAddOptions.map((item) => (

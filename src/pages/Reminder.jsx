@@ -1,38 +1,118 @@
-import React, { useState } from "react";
-import { Bell, Clock, Plus, Trash2, X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { Bell, Clock, Plus, Trash2, X, Loader2 } from "lucide-react";
 
-export default function Reminder() {
-  const [autoOn, setAutoOn] = useState(true);
+import { reminderApi } from "../lib/api";
+
+const INTERVAL_OPTIONS = [30, 45, 60, 90, 120];
+
+const PERMISSION_LABEL = {
+  granted: "Notifikasi aktif",
+  denied: "Notifikasi diblokir browser",
+  default: "Izin notifikasi belum diminta",
+  unsupported: "Browser tidak mendukung notifikasi",
+};
+
+export default function Reminder({ permission, requestPermission }) {
+  const [autoOn, setAutoOn] = useState(false);
+  const [autoSettings, setAutoSettings] = useState({
+    startTime: "07:00",
+    endTime: "22:00",
+    intervalMinutes: 60,
+  });
   const [reminderType, setReminderType] = useState("auto");
-
-  const [reminders, setReminders] = useState([
-    { time: "06:00", enabled: true },
-    { time: "14:00", enabled: true },
-    { time: "17:00", enabled: true },
-    { time: "19:00", enabled: true },
-  ]);
-
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [reminders, setReminders] = useState([]);
   const [newReminderTime, setNewReminderTime] = useState("");
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
-  const toggleReminder = (index) => {
-    setReminders((prev) =>
-      prev.map((item, i) =>
-        i === index
-          ? { ...item, enabled: !item.enabled }
-          : item
-      )
-    );
+  const notify = useCallback((message, tone = "success") => {
+    setFeedback({ message, tone });
+    setTimeout(() => setFeedback(null), 4000);
+  }, []);
+
+  const loadReminders = useCallback(async () => {
+    try {
+      const [list, auto] = await Promise.all([
+        reminderApi.list(),
+        reminderApi.getAuto(),
+      ]);
+
+      setReminders(list);
+      setAutoOn(auto.enabled);
+      setAutoSettings({
+        startTime: auto.startTime,
+        endTime: auto.endTime,
+        intervalMinutes: auto.intervalMinutes,
+      });
+    } catch (error) {
+      notify(error.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [notify]);
+
+  useEffect(() => {
+    loadReminders();
+  }, [loadReminders]);
+
+  const saveAuto = async (payload) => {
+    try {
+      const auto = await reminderApi.setAuto(payload);
+      setAutoOn(auto.enabled);
+      setAutoSettings({
+        startTime: auto.startTime,
+        endTime: auto.endTime,
+        intervalMinutes: auto.intervalMinutes,
+      });
+      return true;
+    } catch (error) {
+      notify(error.message, "error");
+      return false;
+    }
   };
 
-  const changeReminderTime = (index, newTime) => {
-    setReminders((prev) =>
-      prev.map((item, i) =>
-        i === index
-          ? { ...item, time: newTime }
-          : item
-      )
-    );
+  const toggleAuto = async () => {
+    setSaving(true);
+    await saveAuto({ enabled: !autoOn });
+    setSaving(false);
+  };
+
+  const changeAutoInterval = async (intervalMinutes) => {
+    setSaving(true);
+    await saveAuto({ intervalMinutes });
+    setSaving(false);
+  };
+
+  const changeAutoWindow = async (field, value) => {
+    setSaving(true);
+    await saveAuto({ [field]: value });
+    setSaving(false);
+  };
+
+  const toggleReminder = async (reminder) => {
+    try {
+      const updated = await reminderApi.update(reminder.id, {
+        enabled: !reminder.enabled,
+      });
+      setReminders((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item))
+      );
+    } catch (error) {
+      notify(error.message, "error");
+    }
+  };
+
+  const changeReminderTime = async (reminder, time) => {
+    try {
+      const updated = await reminderApi.update(reminder.id, { time });
+      setReminders((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item))
+      );
+    } catch (error) {
+      notify(error.message, "error");
+    }
   };
 
   const addReminder = () => {
@@ -40,35 +120,45 @@ export default function Reminder() {
     setShowTimePicker(true);
   };
 
-  const saveNewReminder = () => {
+  const saveNewReminder = async () => {
     if (!newReminderTime) return;
 
-    setReminders((prev) => [
-      ...prev,
-      {
+    setSaving(true);
+
+    try {
+      const created = await reminderApi.create({
         time: newReminderTime,
-        enabled: true,
-      },
-    ]);
-
-    setNewReminderTime("");
-    setShowTimePicker(false);
+        type: "custom",
+      });
+      setReminders((prev) => [...prev, created]);
+      setNewReminderTime("");
+      setShowTimePicker(false);
+      notify(`Pengingat jam ${created.time} disimpan`);
+    } catch (error) {
+      notify(error.message, "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const deleteReminder = (index) => {
-    setReminders((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+  const deleteReminder = async (reminder) => {
+    try {
+      await reminderApi.remove(reminder.id);
+      setReminders((prev) => prev.filter((item) => item.id !== reminder.id));
+      notify(`Pengingat jam ${reminder.time} dihapus`);
+    } catch (error) {
+      notify(error.message, "error");
+    }
   };
+
+  const showPermissionCard = permission === "default";
 
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-        {/* LEFT CONTENT */}
         <div className="lg:col-span-3">
 
-          {/* HEADER */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-7">
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-700">
@@ -86,13 +176,55 @@ export default function Reminder() {
 
             {reminderType === "auto" && (
               <button
-                onClick={() => setAutoOn(!autoOn)}
-                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 ${autoOn
+                onClick={toggleAuto}
+                disabled={saving}
+                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 disabled:opacity-60 ${autoOn
                     ? "bg-sky-400 text-white shadow-md shadow-sky-100"
                     : "bg-gray-200 text-gray-500"
                   }`}
               >
                 {autoOn ? "Auto On" : "Auto Off"}
+              </button>
+            )}
+          </div>
+
+          <div
+            className={`border rounded-2xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${permission === "granted"
+                ? "border-green-100 bg-green-50"
+                : permission === "denied" || permission === "unsupported"
+                  ? "border-amber-100 bg-amber-50"
+                  : "border-sky-100 bg-sky-50"
+              }`}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <Bell
+                className={`w-5 h-5 shrink-0 ${permission === "granted"
+                    ? "text-green-500"
+                    : "text-amber-500"
+                  }`}
+              />
+
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-700">
+                  {PERMISSION_LABEL[permission]}
+                </p>
+
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {permission === "granted"
+                    ? "Alarm akan muncul dan berbunyi selama tab ini terbuka."
+                    : permission === "denied" || permission === "unsupported"
+                      ? "Alarm tetap muncul di dalam aplikasi, tapi notifikasi browser tidak akan muncul."
+                      : "Izinkan notifikasi supaya alarm muncul walau tab tidak sedang dicek."}
+                </p>
+              </div>
+            </div>
+
+            {showPermissionCard && (
+              <button
+                onClick={requestPermission}
+                className="shrink-0 px-5 py-2.5 rounded-xl bg-sky-400 text-white text-sm font-bold hover:bg-sky-500 active:scale-95 transition"
+              >
+                Allow
               </button>
             )}
           </div>
@@ -130,18 +262,71 @@ export default function Reminder() {
                         : "text-gray-400"
                       }`}
                   >
-                    Every 1 Hour
+                    Every {autoSettings.intervalMinutes} Minutes
                   </h2>
 
                   <p className="text-sm text-gray-400 mt-2">
-                    You will receive a reminder every hour
+                    You will receive a reminder every {autoSettings.intervalMinutes} minutes
                     while Auto Reminder is active.
                   </p>
                 </div>
               </div>
 
+              <div className="mt-6">
+                <p className="text-xs text-gray-400 uppercase tracking-wide font-bold mb-3">
+                  Interval
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {INTERVAL_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => changeAutoInterval(option)}
+                      disabled={saving || !autoOn}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50 ${autoSettings.intervalMinutes === option
+                          ? "bg-sky-400 text-white"
+                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                        }`}
+                    >
+                      {option}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-sky-50/60 rounded-2xl p-4">
+                  <p className="text-xs text-gray-400 uppercase tracking-wide font-bold mb-2">
+                    Active From
+                  </p>
+
+                  <input
+                    type="time"
+                    value={autoSettings.startTime}
+                    disabled={!autoOn || saving}
+                    onChange={(e) => changeAutoWindow("startTime", e.target.value)}
+                    className="text-2xl font-extrabold text-sky-400 bg-transparent outline-none cursor-pointer disabled:opacity-50 [&::-webkit-calendar-picker-indicator]:hidden"
+                  />
+                </div>
+
+                <div className="bg-sky-50/60 rounded-2xl p-4">
+                  <p className="text-xs text-gray-400 uppercase tracking-wide font-bold mb-2">
+                    Active Until
+                  </p>
+
+                  <input
+                    type="time"
+                    value={autoSettings.endTime}
+                    disabled={!autoOn || saving}
+                    onChange={(e) => changeAutoWindow("endTime", e.target.value)}
+                    className="text-2xl font-extrabold text-sky-400 bg-transparent outline-none cursor-pointer disabled:opacity-50 [&::-webkit-calendar-picker-indicator]:hidden"
+                  />
+                </div>
+              </div>
+
               <div
-                className={`mt-6 rounded-2xl p-4 flex items-center gap-3 ${autoOn ? "bg-sky-50" : "bg-gray-100"
+                className={`mt-6 rounded-2xl p-4 flex items-center gap-3 ${autoOn ? "bg-sky-50"
+                    : "bg-gray-100"
                   }`}
               >
                 <Clock
@@ -158,20 +343,38 @@ export default function Reminder() {
                     }`}
                 >
                   {autoOn
-                    ? "Automatic reminder is active"
+                    ? `Active every ${autoSettings.intervalMinutes} minutes, ${autoSettings.startTime} - ${autoSettings.endTime}`
                     : "Automatic reminder is turned off"}
                 </p>
               </div>
             </div>
           )}
 
-          {/* CUSTOM REMINDER */}
           {reminderType === "custom" && (
             <div className="flex flex-col gap-4">
 
-              {reminders.map((reminder, index) => (
+              {loading && (
+                <div className="flex items-center justify-center gap-3 py-16 text-gray-400">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="text-sm font-semibold">Memuat pengingat...</span>
+                </div>
+              )}
+
+              {!loading && reminders.length === 0 && (
+                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center">
+                  <Bell className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm font-bold text-gray-400">
+                    Belum ada pengingat custom
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Tambah jam reminder di bawah, nanti kami ingetin.
+                  </p>
+                </div>
+              )}
+
+              {reminders.map((reminder) => (
                 <div
-                  key={index}
+                  key={reminder.id}
                   className={`border rounded-2xl p-5 sm:p-6 flex items-center justify-between gap-4 transition-all ${reminder.enabled
                       ? "border-sky-100 bg-white"
                       : "border-gray-200 bg-gray-50"
@@ -196,17 +399,14 @@ export default function Reminder() {
 
                     <div>
                       <p className="text-xs text-gray-400 font-medium">
-                        Reminder {index + 1}
+                        Reminder {reminder.id}
                       </p>
 
                       <input
                         type="time"
                         value={reminder.time}
                         onChange={(e) =>
-                          changeReminderTime(
-                            index,
-                            e.target.value
-                          )
+                          changeReminderTime(reminder, e.target.value)
                         }
                         className={`text-2xl sm:text-3xl font-extrabold bg-transparent outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden ${reminder.enabled
                             ? "text-sky-400"
@@ -224,7 +424,7 @@ export default function Reminder() {
 
                     <button
                       onClick={() =>
-                        toggleReminder(index)
+                        toggleReminder(reminder)
                       }
                       className={`relative w-16 h-9 rounded-full shrink-0 transition-colors ${reminder.enabled
                           ? "bg-sky-400"
@@ -241,7 +441,7 @@ export default function Reminder() {
 
                     <button
                       onClick={() =>
-                        deleteReminder(index)
+                        deleteReminder(reminder)
                       }
                       className="w-9 h-9 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
                     >
@@ -252,7 +452,6 @@ export default function Reminder() {
                 </div>
               ))}
 
-              {/* ADD REMINDER */}
               <button
                 onClick={addReminder}
                 className="w-full border-2 border-dashed border-sky-200 rounded-2xl p-5 text-sky-400 font-bold flex items-center justify-center gap-2 hover:bg-sky-50 transition"
@@ -264,7 +463,6 @@ export default function Reminder() {
           )}
         </div>
 
-        {/* REMINDER TYPE */}
         <div className="lg:col-span-1">
           <div className="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
 
@@ -272,7 +470,6 @@ export default function Reminder() {
               Reminder Type
             </h2>
 
-            {/* AUTO */}
             <button
               onClick={() => setReminderType("auto")}
               className={`w-full text-left rounded-2xl p-4 border transition-all ${reminderType === "auto"
@@ -299,14 +496,13 @@ export default function Reminder() {
                   </p>
 
                   <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    System triggers alarms automatically every 1 hour
+                    System triggers alarms automatically at a set interval
                   </p>
                 </div>
 
               </div>
             </button>
 
-            {/* CUSTOM */}
             <button
               onClick={() => setReminderType("custom")}
               className={`w-full text-left rounded-2xl p-4 mt-3 border transition-all ${reminderType === "custom"
@@ -344,13 +540,24 @@ export default function Reminder() {
         </div>
       </div>
 
-      {/* TIME PICKER MODAL */}
+      {feedback && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110]">
+          <div
+            className={`px-5 py-3 rounded-xl shadow-lg text-sm font-bold text-white ${feedback.tone === "error"
+                ? "bg-red-400"
+                : "bg-sky-400"
+              }`}
+          >
+            {feedback.message}
+          </div>
+        </div>
+      )}
+
       {showTimePicker && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
 
           <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6">
 
-            {/* HEADER */}
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-extrabold text-slate-700">
@@ -370,10 +577,8 @@ export default function Reminder() {
               </button>
             </div>
 
-            {/* TIME PICKER */}
             <div className="bg-sky-50 rounded-2xl p-7 flex flex-col items-center justify-center">
 
-              {/* CLOCK ICON - CENTER */}
               <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center mb-4">
                 <Clock className="w-7 h-7 text-sky-400" />
               </div>
@@ -391,7 +596,6 @@ export default function Reminder() {
 
             </div>
 
-            {/* BUTTONS */}
             <div className="flex gap-3 mt-6">
 
               <button
@@ -406,7 +610,7 @@ export default function Reminder() {
 
               <button
                 onClick={saveNewReminder}
-                disabled={!newReminderTime}
+                disabled={!newReminderTime || saving}
                 className={`flex-1 py-3 rounded-xl font-bold transition ${newReminderTime
                     ? "bg-sky-400 text-white hover:bg-sky-500"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"

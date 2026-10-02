@@ -38,6 +38,16 @@ export const reminderApi = {
   history: () => request("/reminders/history"),
 };
 
+export const drinksApi = {
+  list: () => request("/drinks"),
+  create: (payload) =>
+    request("/drinks", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  remove: (id) => request(`/drinks/${id}`, { method: "DELETE" }),
+};
+
 export const notesApi = {
   list: () => request("/notes"),
   create: (payload) =>

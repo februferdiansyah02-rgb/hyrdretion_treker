@@ -4,6 +4,8 @@ import { Bell, X } from "lucide-react";
 
 import useReminderAlarm from "./hooks/useReminderAlarm";
 
+import { drinksApi } from "./lib/api";
+
 import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/auth/Login";
@@ -16,6 +18,9 @@ import Analysis from "./pages/Analysis";
 import Reminder from "./pages/Reminder";
 import Notes from "./pages/Notes";
 import Profile from "./pages/Profile";
+
+const isToday = (value) =>
+  new Date(value).toDateString() === new Date().toDateString();
 
 function MainLayout() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -41,17 +46,11 @@ function MainLayout() {
   useEffect(() => {
     const fetchDrinks = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/drinks");
-        const result = await response.json();
+        const drinks = await drinksApi.list();
 
-        if (!response.ok) {
-          throw new Error(result.message || "Gagal mengambil data minum");
-        }
-
-        const total = result.data.reduce(
-          (sum, drink) => sum + Number(drink.amount),
-          0
-        );
+        const total = drinks
+          .filter((drink) => isToday(drink.time))
+          .reduce((sum, drink) => sum + Number(drink.amount), 0);
 
         setTotalWater(total);
       } catch (error) {
@@ -64,25 +63,9 @@ function MainLayout() {
 
   const handleAddWater = async (amount) => {
     try {
-      const response = await fetch("http://localhost:3000/api/drinks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: amount,
-        }),
-      });
+      const drink = await drinksApi.create({ amount });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Gagal menambahkan air");
-      }
-
-      console.log("Data berhasil ditambahkan:", result);
-
-      setTotalWater((prev) => prev + Number(result.data.amount));
+      setTotalWater((prev) => prev + Number(drink.amount));
     } catch (error) {
       console.error("Gagal menambahkan air:", error);
     }
@@ -107,7 +90,9 @@ function MainLayout() {
               />
             )}
 
-            {activeTab === "Analysis" && <Analysis />}
+            {activeTab === "Analysis" && (
+              <Analysis onOpenNotes={() => setActiveTab("Notes")} />
+            )}
 
             {activeTab === "Reminder" && (
               <Reminder

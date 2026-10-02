@@ -37,3 +37,18 @@ export const reminderApi = {
   due: () => request("/reminders/due"),
   history: () => request("/reminders/history"),
 };
+
+export const notesApi = {
+  list: () => request("/notes"),
+  create: (payload) =>
+    request("/notes", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  update: (id, payload) =>
+    request(`/notes/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+  remove: (id) => request(`/notes/${id}`, { method: "DELETE" }),
+};

@@ -1,11 +1,11 @@
 const express = require("express");
+const router = express.Router();
 
 const {
   getProfile,
   updateProfile
 } = require("../controlers/profilecontroler");
 
-const router = express.Router();
 
 router.get("/", getProfile);
 router.put("/", updateProfile);

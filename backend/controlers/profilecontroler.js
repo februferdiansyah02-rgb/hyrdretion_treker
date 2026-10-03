@@ -3,14 +3,12 @@ let profile = {
   email: "mayongmiyang@gmail.com"
 };
 
-// GET Profile
 const getProfile = (req, res) => {
   res.json({
     data: profile
   });
 };
 
-// PUT Profile
 const updateProfile = (req, res) => {
   const { name, email } = req.body;
 

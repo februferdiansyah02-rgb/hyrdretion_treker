@@ -108,5 +108,6 @@ const deleteDrink = (req, res) => {
 module.exports = {
   addDrink,
   getDrinks,
-  deleteDrink
+  deleteDrink,
+  getDrinkData: () => drinks
 };

@@ -34,41 +34,42 @@ function MainLayout() {
     if (!highlightIntake) return;
 
     const timer = setTimeout(() => setHighlightIntake(false), 8000);
+
     return () => clearTimeout(timer);
   }, [highlightIntake]);
+
+  const refreshWater = async () => {
+    try {
+      const drinks = await drinksApi.list();
+
+      const total = drinks
+        .filter((drink) => isToday(drink.time))
+        .reduce((sum, drink) => sum + Number(drink.amount), 0);
+
+      setTotalWater(total);
+    } catch (error) {
+      console.error("Gagal mengambil data minum:", error);
+    }
+  };
+
+  useEffect(() => {
+    refreshWater();
+  }, []);
+
+  const handleAddWater = async (amount) => {
+    try {
+      await drinksApi.create({ amount });
+
+      await refreshWater();
+    } catch (error) {
+      console.error("Gagal menambahkan air:", error);
+    }
+  };
 
   const handleDrinkNow = () => {
     dismissAll();
     setHighlightIntake(true);
     setActiveTab("Home");
-  };
-
-  useEffect(() => {
-    const fetchDrinks = async () => {
-      try {
-        const drinks = await drinksApi.list();
-
-        const total = drinks
-          .filter((drink) => isToday(drink.time))
-          .reduce((sum, drink) => sum + Number(drink.amount), 0);
-
-        setTotalWater(total);
-      } catch (error) {
-        console.error("Gagal mengambil data minum:", error);
-      }
-    };
-
-    fetchDrinks();
-  }, []);
-
-  const handleAddWater = async (amount) => {
-    try {
-      const drink = await drinksApi.create({ amount });
-
-      setTotalWater((prev) => prev + Number(drink.amount));
-    } catch (error) {
-      console.error("Gagal menambahkan air:", error);
-    }
   };
 
   return (
@@ -91,7 +92,9 @@ function MainLayout() {
             )}
 
             {activeTab === "Analysis" && (
-              <Analysis onOpenNotes={() => setActiveTab("Notes")} />
+              <Analysis
+                onOpenNotes={() => setActiveTab("Notification")}
+              />
             )}
 
             {activeTab === "Reminder" && (
@@ -101,7 +104,7 @@ function MainLayout() {
               />
             )}
 
-            {activeTab === "Notes" && <Notes />}
+            {activeTab === "Notification" && <Notes />}
 
             {activeTab === "Profile" && <Profile />}
 
@@ -116,6 +119,7 @@ function MainLayout() {
           <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6">
 
             <div className="flex items-start justify-between mb-5">
+
               <div className="w-16 h-16 rounded-2xl bg-sky-50 flex items-center justify-center">
                 <Bell className="w-8 h-8 text-sky-400" />
               </div>
@@ -126,6 +130,7 @@ function MainLayout() {
               >
                 <X className="w-5 h-5" />
               </button>
+
             </div>
 
             <h2 className="text-2xl font-extrabold text-slate-700">
@@ -137,6 +142,7 @@ function MainLayout() {
             </p>
 
             <div className="mt-6 flex gap-3">
+
               <button
                 onClick={handleDrinkNow}
                 className="flex-1 py-3 rounded-xl bg-sky-400 text-white font-bold hover:bg-sky-500 active:scale-95 transition"
@@ -145,11 +151,14 @@ function MainLayout() {
               </button>
 
               <button
-                onClick={() => dismiss(alerts[alerts.length - 1].uid)}
+                onClick={() =>
+                  dismiss(alerts[alerts.length - 1].uid)
+                }
                 className="px-5 py-3 rounded-xl bg-gray-100 text-gray-500 font-bold hover:bg-gray-200 transition"
               >
                 Nanti
               </button>
+
             </div>
 
             {alerts.length > 1 && (

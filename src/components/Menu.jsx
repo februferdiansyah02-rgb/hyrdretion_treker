@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Home, BarChart3, Bell, FileText, User } from 'lucide-react';
+import { Home, BarChart3, Bell, FileText, User, Mail, InboxIcon, Calendar1Icon, Calendar } from 'lucide-react';
 import logo from '../assets/logo.png'; 
+import Reminder from '../pages/Reminder';
 
 export default function Menu({ activeTab, setActiveTab }) {
   const [userName, setUserName] = useState('Mayonggg');
@@ -16,8 +17,8 @@ export default function Menu({ activeTab, setActiveTab }) {
   const navItems = [
     { name: 'Home', icon: Home },
     { name: 'Analysis', icon: BarChart3 },
-    { name: 'Reminder', icon: Bell },
-    { name: 'Notes', icon: FileText },
+    { name: 'Reminder', icon: Calendar},
+    { name: 'Notification', icon: Bell },
     { name: 'Profile', icon: User },
   ];
 

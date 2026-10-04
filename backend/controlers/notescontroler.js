@@ -1,187 +1,190 @@
+const { getDrinkData } = require("./drinkcontroler");
+
 const ICONS = ["drop", "progress", "morning", "great", "goal"];
 
-const DEFAULT_ICON = "drop";
+const DEFAULT_GOAL = 2000;
 
-const seedToday = (hour, minute) => {
-  const date = new Date();
-  date.setHours(hour, minute, 0, 0);
-  return date.toISOString();
+const getGoal = (req) => {
+  const goal = Number(req.query.goal);
+
+  if (!Number.isFinite(goal) || goal <= 0) {
+    return DEFAULT_GOAL;
+  }
+
+  return goal;
 };
 
-let notes = [
-  {
-    id: 1,
-    title: "Time to drink water!",
-    message: "It's been 2 hours since your last intake. Stay hydrated!",
-    icon: "drop",
-    createdAt: seedToday(10, 34)
-  },
-  {
-    id: 2,
-    title: "Nice progress!",
-    message: "You've reached 56% of your daily goal. Keep going!",
-    icon: "progress",
-    createdAt: seedToday(9, 12)
-  },
-  {
-    id: 3,
-    title: "Good morning!",
-    message: "Start your day with a glass of water. Your body will thank you!",
-    icon: "morning",
-    createdAt: seedToday(7, 30)
-  },
-  {
-    id: 4,
-    title: "You're doing great!",
-    message: "You're 75% to your daily goal. Almost there!",
-    icon: "great",
-    createdAt: seedToday(16, 15)
-  },
-  {
-    id: 5,
-    title: "Daily goal achieved!",
-    message: "Congrats! You've reached your daily water intake target!",
-    icon: "goal",
-    createdAt: seedToday(20, 3)
-  },
-  {
-    id: 6,
-    title: "Don't forget!",
-    message: "A little water before bed helps your body recover.",
-    icon: "drop",
-    createdAt: seedToday(22, 30)
-  }
-];
+const getTodayDrinks = () => {
+  const drinks = getDrinkData();
 
-let nextId = notes.length + 1;
+  const now = new Date();
 
-const isFilled = (value) => typeof value === "string" && value.trim() !== "";
+  return drinks.filter((drink) => {
+    const drinkDate = new Date(drink.time);
 
-const validateIcon = (icon) => ICONS.includes(icon);
-
-const validateFields = (body, { partial }) => {
-  if (!partial || body.title !== undefined) {
-    if (!isFilled(body.title)) {
-      return "Judul note harus diisi";
-    }
-  }
-
-  if (!partial || body.message !== undefined) {
-    if (!isFilled(body.message)) {
-      return "Isi note harus diisi";
-    }
-  }
-
-  if (body.icon !== undefined && !validateIcon(body.icon)) {
-    return `Icon harus salah satu dari: ${ICONS.join(", ")}`;
-  }
-
-  return null;
+    return (
+      drinkDate.getFullYear() === now.getFullYear() &&
+      drinkDate.getMonth() === now.getMonth() &&
+      drinkDate.getDate() === now.getDate()
+    );
+  });
 };
 
-const sortByLatest = (list) =>
-  [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+const getTodayTotal = (drinks) => {
+  return drinks.reduce((total, drink) => {
+    return total + Number(drink.amount);
+  }, 0);
+};
+
+const getLastDrink = (drinks) => {
+  if (drinks.length === 0) {
+    return null;
+  }
+
+  return [...drinks].sort(
+    (a, b) => new Date(b.time) - new Date(a.time)
+  )[0];
+};
+
+const createNotification = (title, message, icon, createdAt = new Date()) => {
+  return {
+    title,
+    message,
+    icon,
+    createdAt: createdAt.toISOString(),
+  };
+};
 
 // GET /api/notes
 const getNotes = (req, res) => {
+  const goal = getGoal(req);
+
+  const todayDrinks = getTodayDrinks();
+  const todayTotal = getTodayTotal(todayDrinks);
+  const lastDrink = getLastDrink(todayDrinks);
+
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  const progress = (todayTotal / goal) * 100;
+
+  const notifications = [];
+
+  // ==========================================
+  // 1. GOOD MORNING
+  // ==========================================
+  if (currentHour >= 5 && currentHour < 10 && todayTotal === 0) {
+    notifications.push(
+      createNotification(
+        "Good morning!",
+        "Start your day with a glass of water. Your body will thank you!",
+        "morning"
+      )
+    );
+  }
+
+  // ==========================================
+  // 2. TIME TO DRINK WATER
+  // ==========================================
+  if (lastDrink) {
+    const lastDrinkTime = new Date(lastDrink.time);
+    const hoursSinceLastDrink =
+      (now.getTime() - lastDrinkTime.getTime()) / (1000 * 60 * 60);
+
+    if (hoursSinceLastDrink >= 2 && todayTotal < goal) {
+      notifications.push(
+        createNotification(
+          "Time to drink water!",
+          "It's been 2 hours since your last intake. Stay hydrated!",
+          "drop",
+          lastDrinkTime
+        )
+      );
+    }
+  } else if (currentHour >= 10 && todayTotal < goal) {
+    notifications.push(
+      createNotification(
+        "Time to drink water!",
+        "You haven't recorded any water intake yet today. Stay hydrated!",
+        "drop"
+      )
+    );
+  }
+
+  // ==========================================
+  // 3. NICE PROGRESS - 50%
+  // ==========================================
+  if (progress >= 50 && progress < 75) {
+    notifications.push(
+      createNotification(
+        "Nice progress!",
+        `You've reached ${Math.floor(progress)}% of your daily goal. Keep going!`,
+        "progress"
+      )
+    );
+  }
+
+  // ==========================================
+  // 4. YOU'RE DOING GREAT - 75%
+  // ==========================================
+  if (progress >= 75 && progress < 100) {
+    notifications.push(
+      createNotification(
+        "You're doing great!",
+        `You're ${Math.floor(progress)}% to your daily goal. Almost there!`,
+        "great"
+      )
+    );
+  }
+
+  // ==========================================
+  // 5. DAILY GOAL ACHIEVED
+  // ==========================================
+  if (todayTotal >= goal) {
+    notifications.push(
+      createNotification(
+        "Daily goal achieved!",
+        "Congrats! You've reached your daily water intake target!",
+        "goal"
+      )
+    );
+  }
+
+  // ==========================================
+  // 6. DON'T FORGET - EVENING
+  // ==========================================
+  if (currentHour >= 20 && currentHour < 24 && todayTotal < goal) {
+    notifications.push(
+      createNotification(
+        "Don't forget!",
+        "A little water before bed helps your body recover.",
+        "drop"
+      )
+    );
+  }
+
+  // ==========================================
+  // TAMBAHKAN ID
+  // ==========================================
+  const result = notifications.map((notification, index) => ({
+    id: index + 1,
+    ...notification,
+  }));
+
+  // ==========================================
+  // SORT TERBARU
+  // ==========================================
+  result.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
   res.json({
-    message: "Notes berhasil diambil",
-    data: sortByLatest(notes)
-  });
-};
-
-// POST /api/notes
-const createNote = (req, res) => {
-  const { title, message, icon } = req.body;
-
-  const invalidMessage = validateFields(req.body, { partial: false });
-
-  if (invalidMessage) {
-    return res.status(400).json({
-      message: invalidMessage
-    });
-  }
-
-  const note = {
-    id: nextId,
-    title: title.trim(),
-    message: message.trim(),
-    icon: icon || DEFAULT_ICON,
-    createdAt: new Date().toISOString()
-  };
-
-  nextId++;
-  notes.push(note);
-
-  res.status(201).json({
-    message: "Note berhasil dibuat",
-    data: note
-  });
-};
-
-// PUT /api/notes/:id
-const updateNote = (req, res) => {
-  const id = parseInt(req.params.id);
-  const { title, message, icon } = req.body;
-
-  const note = notes.find((item) => item.id === id);
-
-  if (!note) {
-    return res.status(404).json({
-      message: "Note tidak ditemukan"
-    });
-  }
-
-  if (title === undefined && message === undefined && icon === undefined) {
-    return res.status(400).json({
-      message: "Tidak ada data yang diupdate"
-    });
-  }
-
-  const invalidMessage = validateFields(req.body, { partial: true });
-
-  if (invalidMessage) {
-    return res.status(400).json({
-      message: invalidMessage
-    });
-  }
-
-  if (title !== undefined) note.title = title.trim();
-  if (message !== undefined) note.message = message.trim();
-  if (icon !== undefined) note.icon = icon;
-
-  note.updatedAt = new Date().toISOString();
-
-  res.json({
-    message: "Note berhasil diupdate",
-    data: note
-  });
-};
-
-// DELETE /api/notes/:id
-const deleteNote = (req, res) => {
-  const id = parseInt(req.params.id);
-
-  const index = notes.findIndex((item) => item.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Note tidak ditemukan"
-    });
-  }
-
-  const deletedNote = notes.splice(index, 1)[0];
-
-  res.status(200).json({
-    message: "Note berhasil dihapus",
-    data: deletedNote
+    message: "Notifications berhasil diambil",
+    data: result,
   });
 };
 
 module.exports = {
   ICONS,
   getNotes,
-  createNote,
-  updateNote,
-  deleteNote
 };

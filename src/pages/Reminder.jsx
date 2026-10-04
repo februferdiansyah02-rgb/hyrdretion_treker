@@ -6,10 +6,10 @@ import { reminderApi } from "../lib/api";
 const INTERVAL_OPTIONS = [30, 45, 60, 90, 120];
 
 const PERMISSION_LABEL = {
-  granted: "Notifikasi aktif",
-  denied: "Notifikasi diblokir browser",
-  default: "Izin notifikasi belum diminta",
-  unsupported: "Browser tidak mendukung notifikasi",
+  granted: "Active reminder",
+  denied: "Reminder blocked by the browser",
+  default: "Reminder persmission has not yet been requested",
+  unsupported: "The browser doesn't support reminders.",
 };
 
 export default function Reminder({ permission, requestPermission }) {
@@ -190,7 +190,7 @@ export default function Reminder({ permission, requestPermission }) {
 
           <div
             className={`border rounded-2xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${permission === "granted"
-                ? "border-green-100 bg-green-50"
+                ? "border-blue-100 bg-blue-50"
                 : permission === "denied" || permission === "unsupported"
                   ? "border-amber-100 bg-amber-50"
                   : "border-sky-100 bg-sky-50"
@@ -199,7 +199,7 @@ export default function Reminder({ permission, requestPermission }) {
             <div className="flex items-center gap-3 min-w-0">
               <Bell
                 className={`w-5 h-5 shrink-0 ${permission === "granted"
-                    ? "text-green-500"
+                    ? "text-blue-500"
                     : "text-amber-500"
                   }`}
               />
@@ -211,10 +211,10 @@ export default function Reminder({ permission, requestPermission }) {
 
                 <p className="text-xs text-gray-400 mt-0.5">
                   {permission === "granted"
-                    ? "Alarm akan muncul dan berbunyi selama tab ini terbuka."
+                    ? "The alarm will appear and sound as long as this tab remains open."
                     : permission === "denied" || permission === "unsupported"
-                      ? "Alarm tetap muncul di dalam aplikasi, tapi notifikasi browser tidak akan muncul."
-                      : "Izinkan notifikasi supaya alarm muncul walau tab tidak sedang dicek."}
+                      ? "The alarm will still appear within the app, but the browser reminder will not show up."
+                      : "Allow notifications so the alarm appears even when the tab isn't being checked."}
                 </p>
               </div>
             </div>
@@ -356,7 +356,7 @@ export default function Reminder({ permission, requestPermission }) {
               {loading && (
                 <div className="flex items-center justify-center gap-3 py-16 text-gray-400">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="text-sm font-semibold">Memuat pengingat...</span>
+                  <span className="text-sm font-semibold">Loading reminder...</span>
                 </div>
               )}
 
@@ -364,10 +364,10 @@ export default function Reminder({ permission, requestPermission }) {
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center">
                   <Bell className="w-8 h-8 text-gray-300 mx-auto mb-3" />
                   <p className="text-sm font-bold text-gray-400">
-                    Belum ada pengingat custom
+                    No custom reminders yet
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Tambah jam reminder di bawah, nanti kami ingetin.
+                    Add a reminder time below so you don't forget.
                   </p>
                 </div>
               )}

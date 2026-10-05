@@ -16,18 +16,49 @@ export default function Profile() {
     () => savedName.trim().split(/\s+/).slice(1).join(" ")
   );
 
+  const [email, setEmail] = useState(
+    () => localStorage.getItem("userEmail") || "mayongmiyang@gmail.com"
+  );
+  const [age, setAge] = useState(
+    () => localStorage.getItem("userAge") || "25"
+  );
+  const [gender, setGender] = useState(
+    () => localStorage.getItem("userGender") || "Female"
+  );
+
   const [saveMessage, setSaveMessage] = useState("");
-  const [email, setEmail] = useState("mayongmiyang@gmail.com");
-  const [age, setAge] = useState("25");
-  const [gender, setGender] = useState("Female");
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   const handleSave = () => {
     const cleanFirstName = firstName.trim().replace(/\s+/g, " ");
     const cleanLastName = lastName.trim().replace(/\s+/g, " ");
+    const cleanEmail = email.trim();
+    const cleanAge = String(age).trim();
 
     if (!cleanFirstName) {
       setSaveMessage("First Name wajib diisi.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setSaveMessage("Masukkan email yang valid.");
+      return;
+    }
+
+    const ageNumber = Number(cleanAge);
+
+    if (
+      !cleanAge ||
+      !Number.isInteger(ageNumber) ||
+      ageNumber < 1 ||
+      ageNumber > 120
+    ) {
+      setSaveMessage("Age harus berupa angka bulat antara 1–120.");
+      return;
+    }
+
+    if (!["Male", "Female", "Other"].includes(gender)) {
+      setSaveMessage("Pilih gender yang tersedia.");
       return;
     }
 
@@ -36,22 +67,28 @@ export default function Profile() {
       .join(" ");
 
     try {
-      // Home membaca nama dari key yang sama.
+      // Home membaca nama dari key userName.
       localStorage.setItem("userName", fullName);
+      localStorage.setItem("userEmail", cleanEmail);
+      localStorage.setItem("userAge", String(ageNumber));
+      localStorage.setItem("userGender", gender);
 
       setSavedName(fullName);
       setFirstName(cleanFirstName);
       setLastName(cleanLastName);
-      setSaveMessage(
-        "Nama berhasil disimpan. Buka Home untuk melihat perubahan."
-      );
+      setEmail(cleanEmail);
+      setAge(String(ageNumber));
+      setSaveMessage("Data profile berhasil disimpan.");
     } catch {
-      setSaveMessage("Nama gagal disimpan. Coba lagi.");
+      setSaveMessage("Data gagal disimpan sepenuhnya. Coba lagi.");
     }
   };
 
   const handleFinalLogout = () => {
-    localStorage.removeItem("userName");
+    // Bersihkan data profile agar tidak terbawa ke pengguna berikutnya.
+    ["userName", "userEmail", "userAge", "userGender"].forEach((key) => {
+      localStorage.removeItem(key);
+    });
     navigate("/login");
   };
 
@@ -72,7 +109,11 @@ export default function Profile() {
             <div className="w-24 h-24 rounded-full bg-sky-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
               <User className="w-12 h-12 text-sky-400" />
             </div>
-            <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-sky-400 text-white flex items-center justify-center shadow-md hover:bg-sky-500 transition">
+            <button
+              type="button"
+              aria-label="Change profile photo"
+              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-sky-400 text-white flex items-center justify-center shadow-md hover:bg-sky-500 transition"
+            >
               <Camera className="w-4 h-4" />
             </button>
           </div>
@@ -89,10 +130,14 @@ export default function Profile() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               First Name
             </label>
             <input
+              id="firstName"
               type="text"
               value={firstName}
               onChange={(e) => {
@@ -104,10 +149,14 @@ export default function Profile() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               Last Name
             </label>
             <input
+              id="lastName"
               type="text"
               value={lastName}
               onChange={(e) => {
@@ -119,25 +168,42 @@ export default function Profile() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               Email Address
             </label>
             <input
+              id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setSaveMessage("");
+              }}
               className="w-full bg-sky-50 border border-transparent rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
+            <label
+              htmlFor="age"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
               Age
             </label>
             <input
+              id="age"
               type="number"
+              min="1"
+              max="120"
+              step="1"
               value={age}
-              onChange={(e) => setAge(e.target.value)}
+              onChange={(e) => {
+                setAge(e.target.value);
+                setSaveMessage("");
+              }}
               className="w-full bg-sky-50 border border-transparent rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
             />
           </div>
@@ -157,7 +223,10 @@ export default function Profile() {
                     name="gender"
                     value={item}
                     checked={gender === item}
-                    onChange={(e) => setGender(e.target.value)}
+                    onChange={(e) => {
+                      setGender(e.target.value);
+                      setSaveMessage("");
+                    }}
                     className="w-5 h-5 accent-sky-400"
                   />
                   <span>{item}</span>
@@ -180,7 +249,7 @@ export default function Profile() {
             className="flex items-center gap-2 bg-sky-400 text-white font-bold px-6 py-3 rounded-xl hover:bg-sky-500 active:scale-95 transition-all"
           >
             <Save className="w-5 h-5" />
-            Save Name
+            Save Profile
           </button>
 
           <button

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
 
 import logo from "../../assets/loginIcon.jpg";
-import fiveicon from "../../assets/fiveicon.png"; 
+import fiveicon from "../../assets/fiveicon.png";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -19,21 +19,23 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Validasi konfirmasi password
     if (password !== confirmPassword) {
       Swal.fire({
         imageUrl: fiveicon,
         imageWidth: 100,
         imageHeight: 100,
         imageAlt: "Wrong Password Mascot",
-        title: '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Password Tidak Sama</h2>',
-        html: '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Password dan Confirm Password harus sama!</p>',
+        title:
+          '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Password Tidak Sama</h2>',
+        html:
+          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Password dan Confirm Password harus sama!</p>',
         confirmButtonText: "COBA LAGI",
         confirmButtonColor: "#38bdf8",
         buttonsStyling: false,
         customClass: {
           popup: "rounded-3xl p-6",
-          confirmButton: "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
+          confirmButton:
+            "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
         },
       });
       return;
@@ -57,15 +59,17 @@ export default function Register() {
       if (response.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userName", data.userName || fullName);
+        localStorage.setItem("userEmail", email.trim());
 
-     
         Swal.fire({
           imageUrl: logo,
           imageWidth: 100,
           imageHeight: 100,
           imageAlt: "Success Mascot",
-          title: '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Registrasi Berhasil!</h2>',
-          html: '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Akun kamu berhasil dibuat. Selamat datang di Hydration Tracker 💧</p>',
+          title:
+            '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Registrasi Berhasil!</h2>',
+          html:
+            '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Akun kamu berhasil dibuat. Selamat datang di Hydration Tracker 💧</p>',
           showConfirmButton: false,
           timer: 1500,
           customClass: {
@@ -75,37 +79,44 @@ export default function Register() {
           navigate("/dashboard");
         });
       } else {
-
         Swal.fire({
           imageUrl: fiveicon,
           imageWidth: 100,
           imageHeight: 100,
           imageAlt: "Register Error Mascot",
-          title: '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Registrasi</h2>',
-          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${data.message || "Gagal melakukan registrasi."}</p>`,
+          title:
+            '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Registrasi</h2>',
+          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${
+            data.message || "Gagal melakukan registrasi."
+          }</p>`,
           confirmButtonText: "COBA LAGI",
           confirmButtonColor: "#38bdf8",
           buttonsStyling: false,
           customClass: {
             popup: "rounded-3xl p-6",
-            confirmButton: "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
+            confirmButton:
+              "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
           },
         });
       }
     } catch (err) {
       console.error("Error connecting to server:", err);
+
       Swal.fire({
         imageUrl: fiveicon,
         imageWidth: 100,
         imageHeight: 100,
         imageAlt: "Connection Error Mascot",
-        title: '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Koneksi Gagal</h2>',
-        html: '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Tidak dapat terhubung ke server backend.</p>',
+        title:
+          '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Koneksi Gagal</h2>',
+        html:
+          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Tidak dapat terhubung ke server backend.</p>',
         confirmButtonText: "OK",
         buttonsStyling: false,
         customClass: {
           popup: "rounded-3xl p-6",
-          confirmButton: "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
+          confirmButton:
+            "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
         },
       });
     }
@@ -114,7 +125,6 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-6">
       <div className="w-full max-w-md min-h-screen sm:min-h-0 flex flex-col">
-     
         <button
           onClick={() => navigate(-1)}
           className="pt-7 w-fit text-sky-400 hover:text-sky-500 transition"
@@ -122,7 +132,6 @@ export default function Register() {
           <ArrowLeft className="w-7 h-7" />
         </button>
 
-  
         <div className="flex flex-col items-center mt-12 sm:mt-10">
           <img
             src={logo}
@@ -137,7 +146,6 @@ export default function Register() {
 
         <form onSubmit={handleRegister} className="mt-10 sm:mt-12">
           <div className="flex flex-col gap-5">
-      
             <input
               type="text"
               placeholder="Full Name"
@@ -147,7 +155,6 @@ export default function Register() {
               required
             />
 
-       
             <input
               type="email"
               placeholder="Email Address"
@@ -157,7 +164,6 @@ export default function Register() {
               required
             />
 
-       
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -181,7 +187,6 @@ export default function Register() {
               </button>
             </div>
 
-          
             <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -208,7 +213,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Sign Up Button */}
           <button
             type="submit"
             className="w-full h-14 bg-sky-400 hover:bg-sky-500 text-white rounded-xl font-extrabold text-sm mt-12 sm:mt-16 active:scale-[0.98] transition"
@@ -216,7 +220,6 @@ export default function Register() {
             SIGN UP
           </button>
 
-          {/* Login */}
           <p className="text-center text-sm text-black mt-5">
             Already have an account?{" "}
             <button

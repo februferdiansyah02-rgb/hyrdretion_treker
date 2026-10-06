@@ -9,7 +9,7 @@ const request = async (path, options = {}) => {
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(result.message || "Gagal memproses permintaan");
+    throw new Error(result.message || "Failed to process request");
   }
 
   return result.data;
@@ -51,4 +51,3 @@ export const drinksApi = {
 export const notesApi = {
   list: (goal = 2000) => request(`/notes?goal=${goal}`),
 };
-  

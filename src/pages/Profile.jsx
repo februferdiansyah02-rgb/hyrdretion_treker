@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   User,
   LogOut as LogOutIcon,
@@ -8,38 +8,82 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Logout from "../components/Logut";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/useAuth";
 
 export default function Profile() {
   const navigate = useNavigate();
   const photoInputRef = useRef(null);
   const photoRequestRef = useRef(0);
 
+  const { user, profile, refreshProfile, signOut } = useAuth();
+
+  // Profile sudah dimuat oleh AuthContext sebelum route ini dirender
+  // (ProtectedRoute menunggu `loading` false).
   const [savedName, setSavedName] = useState(
-    () => localStorage.getItem("userName") || "Mayong Miyang"
+    () => profile?.full_name || "Mayong Miyang"
   );
   const [firstName, setFirstName] = useState(
-    () => savedName.trim().split(/\s+/)[0]
+    () => (profile?.full_name || "").trim().split(/\s+/)[0] || ""
   );
   const [lastName, setLastName] = useState(
-    () => savedName.trim().split(/\s+/).slice(1).join(" ")
+    () => (profile?.full_name || "").trim().split(/\s+/).slice(1).join(" ")
   );
-  const [email, setEmail] = useState(
-    () => localStorage.getItem("userEmail") || ""
-  );
-  const [age, setAge] = useState(
-    () => localStorage.getItem("userAge") || "25"
+  const [email, setEmail] = useState(() => profile?.email || "");
+  const [age, setAge] = useState(() =>
+    profile?.age != null ? String(profile.age) : "25"
   );
   const [gender, setGender] = useState(
-    () => localStorage.getItem("userGender") || "Female"
+    () => profile?.gender || "Female"
   );
   const [profilePhoto, setProfilePhoto] = useState(
-    () => localStorage.getItem("userPhoto") || ""
+    () => profile?.photo || ""
   );
 
   const [saveMessage, setSaveMessage] = useState("");
   const [photoMessage, setPhotoMessage] = useState("");
   const [isPhotoLoading, setIsPhotoLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+
+  const applyProfile = (data) => {
+    if (!data) return;
+
+    const fullName = data.full_name || "";
+    setSavedName(fullName || "Mayong Miyang");
+    setFirstName(fullName.trim().split(/\s+/)[0] || "");
+    setLastName(fullName.trim().split(/\s+/).slice(1).join(" "));
+    setEmail(data.email || "");
+    if (data.age != null) setAge(String(data.age));
+    if (data.gender) setGender(data.gender);
+    setProfilePhoto(data.photo || "");
+  };
+
+  // Realtime: perubahan baris profile kita langsung tercermin di form
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`profiles-realtime-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          applyProfile(payload.new);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const inputClass =
     "w-full bg-sky-50 border border-transparent rounded-xl px-4 py-3 text-sm text-slate-700 outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-100";
@@ -117,9 +161,8 @@ export default function Profile() {
 
           const photoData = canvas.toDataURL("image/jpeg", 0.85);
 
-          localStorage.setItem("userPhoto", photoData);
           setProfilePhoto(photoData);
-          setPhotoMessage("Profile photo updated successfully.");
+          setPhotoMessage("Profile photo updated successfully. Save profile to keep the change.");
         } catch {
           setPhotoMessage(
             "Unable to save the photo. Browser storage may be full."
@@ -139,20 +182,17 @@ export default function Profile() {
     photoRequestRef.current += 1;
     setIsPhotoLoading(false);
 
-    try {
-      localStorage.removeItem("userPhoto");
-      setProfilePhoto("");
-      setPhotoMessage("Profile photo removed successfully.");
+    setProfilePhoto("");
+    setPhotoMessage("Photo removed. Save profile to keep the change.");
 
-      if (photoInputRef.current) {
-        photoInputRef.current.value = "";
-      }
-    } catch {
-      setPhotoMessage("Unable to remove the photo. Please try again.");
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (isSaving) return;
+
     const cleanFirstName = firstName.trim().replace(/\s+/g, " ");
     const cleanLastName = lastName.trim().replace(/\s+/g, " ");
     const cleanEmail = email.trim();
@@ -189,37 +229,36 @@ export default function Profile() {
       .filter(Boolean)
       .join(" ");
 
-    try {
-      localStorage.setItem("userName", fullName);
-      localStorage.setItem("userEmail", cleanEmail);
-      localStorage.setItem("userAge", String(ageNumber));
-      localStorage.setItem("userGender", gender);
+    setIsSaving(true);
 
-      setSavedName(fullName);
-      setFirstName(cleanFirstName);
-      setLastName(cleanLastName);
-      setEmail(cleanEmail);
-      setAge(String(ageNumber));
-      setSaveMessage("Profile updated successfully.");
-    } catch {
-      setSaveMessage("Unable to save all profile details. Please try again.");
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: fullName,
+        email: cleanEmail,
+        age: ageNumber,
+        gender,
+        photo: profilePhoto || null,
+      })
+      .eq("id", user.id);
+
+    setIsSaving(false);
+
+    if (error) {
+      setSaveMessage(`Unable to save profile: ${error.message}`);
+      return;
     }
+
+    await refreshProfile();
+    setSavedName(fullName);
+    setSaveMessage("Profile updated successfully.");
   };
 
-  const handleFinalLogout = () => {
+  const handleFinalLogout = async () => {
     // Cegah proses upload menyimpan foto setelah logout.
     photoRequestRef.current += 1;
 
-    [
-      "token",
-      "userName",
-      "userEmail",
-      "userAge",
-      "userGender",
-      "userPhoto",
-    ].forEach((key) => {
-      localStorage.removeItem(key);
-    });
+    await signOut();
 
     navigate("/login");
   };
@@ -436,10 +475,11 @@ export default function Profile() {
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center gap-2 bg-sky-400 text-white font-bold px-6 py-3 rounded-xl hover:bg-sky-500 active:scale-95 transition-all"
+            disabled={isSaving}
+            className="flex items-center gap-2 bg-sky-400 text-white font-bold px-6 py-3 rounded-xl hover:bg-sky-500 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
-            Save Profile
+            {isSaving ? "Saving..." : "Save Profile"}
           </button>
 
           <button

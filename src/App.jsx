@@ -22,8 +22,16 @@ import Reminder from "./pages/Reminder";
 import Notes from "./pages/Notes";
 import Profile from "./pages/Profile";
 
-const isToday = (value) =>
-  new Date(value).toDateString() === new Date().toDateString();
+const isToday = (value) => {
+  const drinkDate = new Date(value);
+  const today = new Date();
+
+  return (
+    drinkDate.getFullYear() === today.getFullYear() &&
+    drinkDate.getMonth() === today.getMonth() &&
+    drinkDate.getDate() === today.getDate()
+  );
+};
 
 function MainLayout() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -36,22 +44,30 @@ function MainLayout() {
   useEffect(() => {
     if (!highlightIntake) return;
 
-    const timer = setTimeout(() => setHighlightIntake(false), 8000);
+    const timer = setTimeout(() => {
+      setHighlightIntake(false);
+    }, 8000);
 
     return () => clearTimeout(timer);
   }, [highlightIntake]);
 
   const refreshWater = async () => {
     try {
+      console.log("Loading water intake...");
+
       const drinks = await drinksApi.list();
+
+      console.log("Drinks received from backend:", drinks);
 
       const total = drinks
         .filter((drink) => isToday(drink.time))
         .reduce((sum, drink) => sum + Number(drink.amount), 0);
 
+      console.log("Today's water total:", total);
+
       setTotalWater(total);
     } catch (error) {
-      console.error("Gagal mengambil data minum:", error);
+      console.error("Failed to load water intake:", error);
     }
   };
 
@@ -61,11 +77,17 @@ function MainLayout() {
 
   const handleAddWater = async (amount) => {
     try {
-      await drinksApi.create({ amount });
+      console.log("Adding water:", amount);
+
+      const result = await drinksApi.create({
+        amount: Number(amount),
+      });
+
+      console.log("Water successfully added:", result);
 
       await refreshWater();
     } catch (error) {
-      console.error("Gagal menambahkan air:", error);
+      console.error("Failed to add water intake:", error);
     }
   };
 
@@ -115,10 +137,8 @@ function MainLayout() {
         </main>
       </div>
 
-      {/* REMINDER ALARM */}
       {alerts.length > 0 && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-
           <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6">
 
             <div className="flex items-start justify-between mb-5">

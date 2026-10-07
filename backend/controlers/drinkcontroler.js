@@ -1,107 +1,103 @@
-const seedDrink = (daysAgo, hour, amount) => {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  date.setHours(hour, 0, 0, 0);
+const supabase = require("../config/supabase");
 
-  return {
-    amount,
-    time: date.toISOString(),
-  };
-};
+const addDrink = async (req, res) => {
+  console.log("ADD DRINK REQUEST:", req.body);
 
-const seedDays = [
-  [6, [250, 500, 250, 500, 500]],
-  [5, [250, 500, 250, 500, 500]],
-  [4, [500, 500, 250]],
-  [3, [250, 500, 500, 250, 500]],
-  [2, [250, 250, 500, 500, 700]],
-  [1, [500, 500, 250, 350, 500]],
-  [0, [250]],
-];
-
-const START_HOUR = 7;
-const GAP_HOURS = 2;
-
-let drinks = seedDays.flatMap(([daysAgo, amounts]) =>
-  amounts.map((amount, index) =>
-    seedDrink(daysAgo, START_HOUR + index * GAP_HOURS, amount)
-  )
-);
-
-let nextId = drinks.length + 1;
-
-const parseTime = (value) => {
-  if (value === undefined || value === null || value === "") {
-    return new Date();
-  }
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime()) ? null : date;
-};
-
-const addDrink = (req, res) => {
   const { amount, time } = req.body;
-
-  if (!amount) {
-    return res.status(400).json({
-      message: "Jumlah air harus diisi"
-    });
-  }
 
   const parsedAmount = Number(amount);
 
   if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
     return res.status(400).json({
-      message: "Jumlah air harus berupa angka positif"
+      message: "Water amount must be a positive number",
     });
   }
 
-  const parsedTime = parseTime(time);
+  const parsedTime = time ? new Date(time) : new Date();
 
-  if (!parsedTime) {
+  if (Number.isNaN(parsedTime.getTime())) {
     return res.status(400).json({
-      message: "Format waktu tidak valid"
+      message: "Invalid time format",
     });
   }
 
-  const drink = {
-    id: nextId,
-    amount: parsedAmount,
-    time: parsedTime,
-  };
+  const { data, error } = await supabase
+    .from("drinks")
+    .insert([
+      {
+        amount: parsedAmount,
+        time: parsedTime.toISOString(),
+      },
+    ])
+    .select()
+    .single();
 
-  nextId++;
+  if (error) {
+    console.error("Supabase insert error:", error);
 
-  drinks.push(drink);
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+
+  console.log("DRINK SAVED:", data);
 
   res.status(201).json({
-    message: "Pencatatan air berhasil",
-    data: drink
-  });
-};
-const getDrinks = (req, res) => {
-  res.json({
-    data: drinks
+    message: "Water intake recorded successfully",
+    data,
   });
 };
 
-const deleteDrink = (req, res) => {
-  const id = parseInt(req.params.id);
+const getDrinks = async (req, res) => {
+  console.log("GET DRINKS REQUEST");
 
-  const index = drinks.findIndex((drink) => drink.id === id);
+  const { data, error } = await supabase
+    .from("drinks")
+    .select("*")
+    .order("time", { ascending: false });
 
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Data minum tidak ditemukan"
+  if (error) {
+    console.error("Supabase select error:", error);
+
+    return res.status(500).json({
+      message: error.message,
     });
   }
 
-  const deletedDrink = drinks.splice(index, 1);
+  console.log("DRINKS FROM SUPABASE:", data);
 
-  res.status(200).json({
-    message: "Pencatatan air berhasil dihapus",
-    data: deletedDrink[0]
+  res.json({
+    data,
+  });
+};
+
+const deleteDrink = async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({
+      message: "Invalid ID",
+    });
+  }
+
+  const { data, error } = await supabase
+    .from("drinks")
+    .delete()
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Supabase delete error:", error);
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+
+  res.json({
+    message: "Water intake deleted successfully",
+    data,
   });
 };
 
@@ -109,5 +105,4 @@ module.exports = {
   addDrink,
   getDrinks,
   deleteDrink,
-  getDrinkData: () => drinks
 };

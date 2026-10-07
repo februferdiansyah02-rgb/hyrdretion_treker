@@ -27,5 +27,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables
+.env
+.env.*
+!.env.example
+
 
 *hydration-tracker-be

@@ -1,18 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Home, BarChart3, Bell, FileText, User, Mail, InboxIcon, Calendar1Icon, Calendar } from 'lucide-react';
+import { Home, BarChart3, Bell, User, Calendar } from 'lucide-react';
 import logo from '../assets/logo.png'; 
-import Reminder from '../pages/Reminder';
+import { useAuth } from '../context/useAuth';
 
 export default function Menu({ activeTab, setActiveTab }) {
-  const [userName, setUserName] = useState('Mayonggg');
-
-
-  useEffect(() => {
-    const savedName = localStorage.getItem('userName');
-    if (savedName) {
-      setUserName(savedName);
-    }
-  }, []);
+  const { profile } = useAuth();
+  const userName = profile?.full_name || 'Mayonggg';
 
   const navItems = [
     { name: 'Home', icon: Home },
@@ -81,11 +73,19 @@ export default function Menu({ activeTab, setActiveTab }) {
       </nav>
 
       <div className="hidden md:flex items-center gap-3 p-2 border border-gray-200 rounded-2xl bg-white">
-        <img
-          src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mayonggg"
-          alt="Profile"
-          className="w-10 h-10 rounded-full bg-amber-100"
-        />
+        {profile?.photo ? (
+          <img
+            src={profile.photo}
+            alt="Profile"
+            className="w-10 h-10 rounded-full object-cover bg-amber-100"
+          />
+        ) : (
+          <img
+            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userName)}`}
+            alt="Profile"
+            className="w-10 h-10 rounded-full bg-amber-100"
+          />
+        )}
         <div>
       
           <h4 className="text-sm font-bold text-sky-500 leading-tight">{userName}</h4>

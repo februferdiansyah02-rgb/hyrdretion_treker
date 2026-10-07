@@ -1,55 +1,43 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
+
+import { supabase } from "../../lib/supabase";
+import { useAuth } from "../../context/useAuth";
 
 import logo from "../../assets/loginIcon.jpg";
 import fiveicon from "../../assets/fiveicon.png";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { session, loading, refreshProfile } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(
+    () => location.state?.email || ""
+  );
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!loading && session) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     try {
-      const response = await fetch("http://localhost:3000/api/v1/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userName", data.userName || email.split("@")[0]);
-        localStorage.setItem("userEmail", email.trim());
-
-        Swal.fire({
-          imageUrl: logo,
-          imageWidth: 100,
-          imageHeight: 100,
-          imageAlt: "Success Mascot",
-          title:
-            '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Login Berhasil!</h2>',
-          html:
-            '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Selamat datang kembali di Hydration Tracker </p>',
-          showConfirmButton: false,
-          timer: 1500,
-          customClass: {
-            popup: "rounded-3xl p-6",
-          },
-        }).then(() => {
-          navigate("/dashboard");
-        });
-      } else {
+      if (error) {
         Swal.fire({
           imageUrl: fiveicon,
           imageWidth: 100,
@@ -57,9 +45,7 @@ export default function Login() {
           imageAlt: "Wrong Password Mascot",
           title:
             '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Masuk</h2>',
-          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${
-            data.message || "Email atau password yang kamu masukkan salah."
-          }</p>`,
+          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${error.message}</p>`,
           confirmButtonText: "COBA LAGI",
           confirmButtonColor: "#38bdf8",
           buttonsStyling: false,
@@ -69,9 +55,32 @@ export default function Login() {
               "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
           },
         });
+        return;
       }
+
+      if (data.user) {
+        await refreshProfile();
+      }
+
+      Swal.fire({
+        imageUrl: logo,
+        imageWidth: 100,
+        imageHeight: 100,
+        imageAlt: "Success Mascot",
+        title:
+          '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Login Berhasil!</h2>',
+        html:
+          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Selamat datang kembali di Hydration Tracker </p>',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          popup: "rounded-3xl p-6",
+        },
+      }).then(() => {
+        navigate("/dashboard");
+      });
     } catch (err) {
-      console.error("Error connecting to server:", err);
+      console.error("Error connecting to Supabase:", err);
 
       Swal.fire({
         imageUrl: fiveicon,
@@ -81,8 +90,9 @@ export default function Login() {
         title:
           '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Koneksi Gagal</h2>',
         html:
-          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Tidak dapat terhubung ke server backend.</p>',
+          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Tidak dapat terhubung ke server.</p>',
         confirmButtonText: "OK",
+        confirmButtonColor: "#38bdf8",
         buttonsStyling: false,
         customClass: {
           popup: "rounded-3xl p-6",
@@ -90,6 +100,8 @@ export default function Login() {
             "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
         },
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -162,9 +174,10 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full h-14 bg-sky-400 hover:bg-sky-500 text-white rounded-xl font-extrabold text-sm mt-24 sm:mt-28 active:scale-[0.98] transition"
+            disabled={isSubmitting}
+            className="w-full h-14 bg-sky-400 hover:bg-sky-500 text-white rounded-xl font-extrabold text-sm mt-24 sm:mt-28 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            LOG IN
+            {isSubmitting ? "LOGGING IN..." : "LOG IN"}
           </button>
 
           <p className="text-center text-sm text-black mt-5">

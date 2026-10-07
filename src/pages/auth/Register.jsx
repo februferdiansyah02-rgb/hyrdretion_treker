@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
 
+import { supabase } from "../../lib/supabase";
+
 import logo from "../../assets/loginIcon.jpg";
 import fiveicon from "../../assets/fiveicon.png";
 
@@ -42,43 +44,18 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/v1/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+          },
+          emailRedirectTo: undefined,
         },
-        body: JSON.stringify({
-          name: fullName,
-          email: email,
-          password: password,
-        }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userName", data.userName || fullName);
-        localStorage.setItem("userEmail", email.trim());
-
-        Swal.fire({
-          imageUrl: logo,
-          imageWidth: 100,
-          imageHeight: 100,
-          imageAlt: "Success Mascot",
-          title:
-            '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Registrasi Berhasil!</h2>',
-          html:
-            '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Akun kamu berhasil dibuat. Selamat datang di Hydration Tracker 💧</p>',
-          showConfirmButton: false,
-          timer: 1500,
-          customClass: {
-            popup: "rounded-3xl p-6",
-          },
-        }).then(() => {
-          navigate("/dashboard");
-        });
-      } else {
+      if (error) {
         Swal.fire({
           imageUrl: fiveicon,
           imageWidth: 100,
@@ -86,9 +63,7 @@ export default function Register() {
           imageAlt: "Register Error Mascot",
           title:
             '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Registrasi</h2>',
-          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${
-            data.message || "Gagal melakukan registrasi."
-          }</p>`,
+          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${error.message}</p>`,
           confirmButtonText: "COBA LAGI",
           confirmButtonColor: "#38bdf8",
           buttonsStyling: false,
@@ -98,9 +73,53 @@ export default function Register() {
               "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
           },
         });
+        return;
       }
+
+      if (!data.user) {
+        Swal.fire({
+          imageUrl: fiveicon,
+          imageWidth: 100,
+          imageHeight: 100,
+          imageAlt: "Register Error Mascot",
+          title:
+            '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Registrasi</h2>',
+          html: '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Akun tidak dapat dibuat. Coba lagi.</p>',
+          confirmButtonText: "COBA LAGI",
+          confirmButtonColor: "#38bdf8",
+          buttonsStyling: false,
+          customClass: {
+            popup: "rounded-3xl p-6",
+            confirmButton:
+              "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
+          },
+        });
+        return;
+      }
+
+      // Keluar dulu supaya user benar-benar lewat halaman Login
+      // (alur: register -> login -> dashboard)
+      await supabase.auth.signOut();
+
+      Swal.fire({
+        imageUrl: logo,
+        imageWidth: 100,
+        imageHeight: 100,
+        imageAlt: "Success Mascot",
+        title:
+          '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Registrasi Berhasil!</h2>',
+        html:
+          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Akun kamu berhasil dibuat. Selamat datang di Hydration Tracker 💧</p>',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          popup: "rounded-3xl p-6",
+        },
+      }).then(() => {
+        navigate("/login", { state: { email: email.trim() } });
+      });
     } catch (err) {
-      console.error("Error connecting to server:", err);
+      console.error("Error connecting to Supabase:", err);
 
       Swal.fire({
         imageUrl: fiveicon,
@@ -110,8 +129,9 @@ export default function Register() {
         title:
           '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Koneksi Gagal</h2>',
         html:
-          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Tidak dapat terhubung ke server backend.</p>',
+          '<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Tidak dapat terhubung ke server.</p>',
         confirmButtonText: "OK",
+        confirmButtonColor: "#38bdf8",
         buttonsStyling: false,
         customClass: {
           popup: "rounded-3xl p-6",

@@ -1,9 +1,24 @@
+import { supabase } from "./supabase";
+
 export const API_BASE = "http://localhost:3000/api";
 
 const request = async (path, options = {}) => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers,
   });
 
   const result = await response.json().catch(() => ({}));

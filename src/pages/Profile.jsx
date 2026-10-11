@@ -21,7 +21,7 @@ export default function Profile() {
   // Profile sudah dimuat oleh AuthContext sebelum route ini dirender
   // (ProtectedRoute menunggu `loading` false).
   const [savedName, setSavedName] = useState(
-    () => profile?.full_name || "Mayong Miyang"
+    () => profile?.full_name || ""
   );
   const [firstName, setFirstName] = useState(
     () => (profile?.full_name || "").trim().split(/\s+/)[0] || ""
@@ -50,7 +50,7 @@ export default function Profile() {
     if (!data) return;
 
     const fullName = data.full_name || "";
-    setSavedName(fullName || "Mayong Miyang");
+    setSavedName(fullName);
     setFirstName(fullName.trim().split(/\s+/)[0] || "");
     setLastName(fullName.trim().split(/\s+/).slice(1).join(" "));
     setEmail(data.email || "");

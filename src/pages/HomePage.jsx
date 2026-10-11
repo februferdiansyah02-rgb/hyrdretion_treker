@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Droplet, Plus, X } from "lucide-react";
 import logo from "../assets/logo.png";
+import { useAuth } from "../context/useAuth";
 
 export default function HomePage({
   onAddWater,
@@ -8,7 +9,8 @@ export default function HomePage({
   totalWater = 0,
   highlightIntake = false,
 }) {
-  const [userName, setUserName] = useState("Mayonggg");
+  const { profile } = useAuth();
+  const [userName, setUserName] = useState("");
   const [goal, setGoal] = useState(2000);
   const [customAmount, setCustomAmount] = useState("");
   const [showCustom, setShowCustom] = useState(false);
@@ -26,7 +28,7 @@ export default function HomePage({
 
 
   useEffect(() => {
-    const savedName = localStorage.getItem("userName");
+    const savedName = profile?.full_name || localStorage.getItem("userName");
     const savedGoal = localStorage.getItem("waterGoal");
 
     if (savedName) setUserName(savedName);
@@ -35,7 +37,7 @@ export default function HomePage({
       setGoal(Number(savedGoal));
       setGoalInput(savedGoal);
     }
-  }, []);
+  }, [profile?.full_name]);
 
  
   useEffect(() => {

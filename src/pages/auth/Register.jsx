@@ -12,6 +12,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,6 +21,8 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
 
     if (password !== confirmPassword) {
       Swal.fire({
@@ -43,6 +46,8 @@ export default function Register() {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -56,14 +61,30 @@ export default function Register() {
       });
 
       if (error) {
+        const isAlreadyRegistered =
+          error.message?.toLowerCase().includes("already registered") ||
+          error.message?.toLowerCase().includes("already been registered");
+        const isRateLimited =
+          error.status === 429 ||
+          error.message?.toLowerCase().includes("rate limit");
+
         Swal.fire({
           imageUrl: fiveicon,
           imageWidth: 100,
           imageHeight: 100,
           imageAlt: "Register Error Mascot",
-          title:
-            '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Registrasi</h2>',
-          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${error.message}</p>`,
+          title: `<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">${
+            isAlreadyRegistered ? "Email Sudah Terdaftar" : "Gagal Registrasi"
+          }</h2>`,
+          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${
+            isAlreadyRegistered
+              ? "Email ini sudah dipakai. Silakan login atau pakai email lain."
+              : `${
+                  isRateLimited
+                    ? "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi."
+                    : ""
+                }<br/><span style="font-size: 12px; color: #94a3b8;">${error.message}</span>`
+          }</p>`,
           confirmButtonText: "COBA LAGI",
           confirmButtonColor: "#38bdf8",
           buttonsStyling: false,
@@ -139,6 +160,8 @@ export default function Register() {
             "w-full h-12 bg-sky-400 hover:bg-sky-500 text-white font-extrabold rounded-xl mt-4 transition",
         },
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -235,9 +258,10 @@ export default function Register() {
 
           <button
             type="submit"
-            className="w-full h-14 bg-sky-400 hover:bg-sky-500 text-white rounded-xl font-extrabold text-sm mt-12 sm:mt-16 active:scale-[0.98] transition"
+            disabled={isSubmitting}
+            className="w-full h-14 bg-sky-400 hover:bg-sky-500 text-white rounded-xl font-extrabold text-sm mt-12 sm:mt-16 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            SIGN UP
+            {isSubmitting ? "SIGNING UP..." : "SIGN UP"}
           </button>
 
           <p className="text-center text-sm text-black mt-5">

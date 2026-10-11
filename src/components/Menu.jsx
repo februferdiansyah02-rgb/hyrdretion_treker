@@ -4,7 +4,7 @@ import { useAuth } from '../context/useAuth';
 
 export default function Menu({ activeTab, setActiveTab }) {
   const { profile } = useAuth();
-  const userName = profile?.full_name || 'Mayonggg';
+  const userName = profile?.full_name || 'Hydration Member';
 
   const navItems = [
     { name: 'Home', icon: Home },

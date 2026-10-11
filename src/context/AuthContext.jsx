@@ -33,16 +33,36 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadProfile = useCallback(async (userId) => {
+  const loadProfile = useCallback(async (user) => {
+    if (!user?.id) {
+      setProfile(null);
+      syncLegacyStorage(null);
+      return null;
+    }
+
     const { data } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", userId)
+      .eq("id", user.id)
       .single();
 
-    setProfile(data ?? null);
-    syncLegacyStorage(data ?? null);
-    return data ?? null;
+    // Fallback ke metadata akun Supabase Auth kalau baris profiles
+    // belum ada / full_name kosong, supaya nama asli user tetap tampil.
+    const metadata = user.user_metadata || {};
+    const fallbackName = metadata.full_name || metadata.name || "";
+
+    const merged = {
+      id: user.id,
+      email: data?.email || user.email || "",
+      full_name: (data?.full_name || "").trim() || fallbackName,
+      age: data?.age ?? null,
+      gender: data?.gender || "Other",
+      photo: data?.photo || null,
+    };
+
+    setProfile(merged);
+    syncLegacyStorage(merged);
+    return merged;
   }, []);
 
   useEffect(() => {
@@ -51,7 +71,7 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (cancelled) return;
       setSession(session);
-      if (session?.user) await loadProfile(session.user.id);
+      if (session?.user) await loadProfile(session.user);
       setLoading(false);
     });
 
@@ -61,7 +81,7 @@ export function AuthProvider({ children }) {
       setSession(newSession);
 
       if (event === "SIGNED_IN" && newSession?.user) {
-        loadProfile(newSession.user.id);
+        loadProfile(newSession.user);
       } else if (event === "SIGNED_OUT") {
         setProfile(null);
         syncLegacyStorage(null);
@@ -69,7 +89,7 @@ export function AuthProvider({ children }) {
         (event === "USER_UPDATED" || event === "TOKEN_REFRESHED") &&
         newSession?.user
       ) {
-        loadProfile(newSession.user.id);
+        loadProfile(newSession.user);
       }
     });
 
@@ -81,7 +101,7 @@ export function AuthProvider({ children }) {
 
   const refreshProfile = useCallback(async () => {
     if (!session) return null;
-    return loadProfile(session.user.id);
+    return loadProfile(session.user);
   }, [loadProfile, session]);
 
   const signOut = useCallback(async () => {

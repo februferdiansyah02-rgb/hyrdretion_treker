@@ -45,7 +45,7 @@ export default function Login() {
           imageAlt: "Wrong Password Mascot",
           title:
             '<h2 style="font-size: 22px; font-weight: 800; color: #1e293b;">Gagal Masuk</h2>',
-          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">${error.message}</p>`,
+          html: `<p style="font-size: 14px; color: #64748b; margin-top: 4px;">Email atau kata sandi salah, coba ulangi dengan benar.</p>`,
           confirmButtonText: "COBA LAGI",
           confirmButtonColor: "#38bdf8",
           buttonsStyling: false,

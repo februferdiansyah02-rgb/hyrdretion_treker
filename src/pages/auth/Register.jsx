@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { supabase } from "../../lib/supabase";
 
 import logo from "../../assets/loginIcon.jpg";
-import fiveicon from "../../assets/fiveicon.png";
+import fiveicon from "../../assets/fiveIcon.png";
 
 export default function Register() {
   const navigate = useNavigate();

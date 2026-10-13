@@ -7,7 +7,7 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../context/useAuth";
 
 import logo from "../../assets/loginIcon.jpg";
-import fiveicon from "../../assets/fiveicon.png";
+import fiveicon from "../../assets/fiveIcon.png";
 
 export default function Login() {
   const navigate = useNavigate();

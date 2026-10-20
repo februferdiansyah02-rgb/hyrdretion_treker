@@ -62,6 +62,8 @@ export default function Analysis({ onOpenNotes }) {
     const [refreshing, setRefreshing] = useState(false);
     const [updatedAt, setUpdatedAt] = useState(null);
     const [feedback, setFeedback] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
     const notify = useCallback((message, tone = "success") => {
         setFeedback({ message, tone });
@@ -166,6 +168,31 @@ export default function Analysis({ onOpenNotes }) {
     );
 
     const recentNotes = notes.slice(0, 3);
+
+    // Riwayat minum diurutkan dari data terbaru.
+    const historyDrinks = useMemo(
+        () =>
+            [...validDrinks].sort(
+                (a, b) => b.date - a.date
+            ),
+        [validDrinks]
+    );
+
+    const totalPages = Math.ceil(
+        historyDrinks.length / itemsPerPage
+    );
+
+    const paginatedDrinks = historyDrinks.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Pastikan halaman tetap valid jika data berkurang setelah refresh.
+    useEffect(() => {
+        setCurrentPage((page) =>
+            Math.min(page, Math.max(totalPages, 1))
+        );
+    }, [totalPages]);
 
     const exportReport = () => {
         if (validDrinks.length === 0) {
@@ -642,6 +669,104 @@ export default function Analysis({ onOpenNotes }) {
 
                     </div>
 
+                </div>
+
+                {/* Water Intake History */}
+                <div className="bg-white border border-sky-100 rounded-3xl p-5 sm:p-6 shadow-sm mt-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+                        <div>
+                            <h2 className="text-lg sm:text-xl font-extrabold text-slate-700">
+                                Water intake history
+                            </h2>
+                            <p className="text-xs text-slate-400 mt-1">
+                                The water history that you have recorded.
+                            </p>
+                        </div>
+                        <span className="bg-sky-50 text-sky-400 px-3 py-2 rounded-xl text-xs font-bold w-fit">
+                            {historyDrinks.length} records
+                        </span>
+                    </div>
+
+                    {loading ? (
+                        <div className="flex items-center justify-center gap-3 py-8 text-slate-400">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span className="text-sm">Loading history...</span>
+                        </div>
+                    ) : historyDrinks.length === 0 ? (
+                        <div className="border-2 border-dashed border-slate-100 rounded-2xl p-8 text-center">
+                            <Droplet className="w-7 h-7 text-slate-300 mx-auto mb-2" />
+                            <p className="text-sm font-bold text-slate-400">
+                                No history yet drink consumption.
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">
+                                The drink data you add will appear hear.
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex flex-col gap-3">
+                                {paginatedDrinks.map((drink, index) => (
+                                    <div
+                                        key={drink.id ?? `${drink.date.getTime()}-${index}`}
+                                        className="flex items-center gap-3 sm:gap-4 bg-sky-50/60 rounded-2xl p-3 sm:p-4"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
+                                            <Droplet className="w-5 h-5 text-sky-400 fill-sky-400" />
+                                        </div>
+
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-bold text-slate-700">
+                                                {drink.amount} ml
+                                            </p>
+                                            <p className="text-xs text-slate-400 mt-1">
+                                                {drink.date.toLocaleDateString("id-ID", {
+                                                    day: "numeric",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </p>
+                                        </div>
+
+                                        <span className="shrink-0 text-xs font-semibold text-sky-400">
+                                            {formatTime(drink.date)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-5 pt-4 border-t border-sky-100">
+                                <p className="text-xs text-slate-400">
+                                    Page {currentPage} of {Math.max(totalPages, 1)}
+                                </p>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setCurrentPage((page) => Math.max(page - 1, 1))
+                                        }
+                                        disabled={currentPage === 1}
+                                        className="px-4 py-2 rounded-xl border border-sky-100 text-sm font-bold text-sky-400 hover:bg-sky-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        Previous
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setCurrentPage((page) =>
+                                                Math.min(page + 1, totalPages)
+                                            )
+                                        }
+                                        disabled={currentPage >= totalPages}
+                                        className="px-4 py-2 rounded-xl bg-sky-400 text-white text-sm font-bold hover:bg-sky-500 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Right */}

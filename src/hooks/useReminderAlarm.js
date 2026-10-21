@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { reminderApi } from "../lib/api";
 import { playReminderSound, unlockAudio } from "../lib/reminderSound";
+import { registerServiceWorker, subscribeToPush } from "../lib/push";
 
 const POLL_INTERVAL = 15000;
 const MAX_VISIBLE_ALERTS = 3;
@@ -17,10 +18,27 @@ export default function useReminderAlarm() {
   const [alerts, setAlerts] = useState([]);
   const [permission, setPermission] = useState(getPermission);
   const permissionRef = useRef(permission);
+  const swRegistered = useRef(false);
 
   useEffect(() => {
     permissionRef.current = permission;
   }, [permission]);
+
+  useEffect(() => {
+    const initPush = async () => {
+      try {
+        if (swRegistered.current) return;
+        swRegistered.current = true;
+        await registerServiceWorker();
+        if (getPermission() === "granted") {
+          await subscribeToPush();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    initPush();
+  }, []);
 
   const dismiss = useCallback((uid) => {
     setAlerts((prev) => prev.filter((alert) => alert.uid !== uid));
@@ -37,6 +55,9 @@ export default function useReminderAlarm() {
 
     const result = await window.Notification.requestPermission();
     setPermission(result);
+    if (result === "granted") {
+      await subscribeToPush();
+    }
     return result;
   }, []);
 

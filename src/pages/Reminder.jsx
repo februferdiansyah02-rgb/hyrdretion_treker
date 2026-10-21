@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Bell, Clock, Plus, Trash2, X, Loader2 } from "lucide-react";
 
 import { reminderApi } from "../lib/api";
+import { subscribeToPush } from "../lib/push";
 
 const INTERVAL_OPTIONS = [30, 45, 60, 90, 120];
 
@@ -211,21 +212,97 @@ export default function Reminder({ permission, requestPermission }) {
 
                 <p className="text-xs text-gray-400 mt-0.5">
                   {permission === "granted"
-                    ? "The alarm will appear and sound as long as this tab remains open."
-                    : permission === "denied" || permission === "unsupported"
-                      ? "The alarm will still appear within the app, but the browser reminder will not show up."
-                      : "Allow notifications so the alarm appears even when the tab isn't being checked."}
+                    ? "System notification akan tetap muncul meski aplikasi ditutup (via Web Push)."
+                    : permission === "denied"
+                      ? "Klik ikon 🔒/tuning di address bar → Site settings → Notifications → pilih Allow, lalu muat ulang halaman ini."
+                      : permission === "unsupported"
+                        ? "The alarm will still appear within the app, but the browser reminder will not show up."
+                        : "Allow notifications so the alarm appears even when the app is closed."}
                 </p>
               </div>
             </div>
 
+            {permission === "denied" && (
+              <button
+                onClick={() => window.location.reload()}
+                className="shrink-0 px-5 py-2.5 rounded-xl bg-white border border-amber-300 text-amber-600 text-sm font-bold hover:bg-amber-50 active:scale-95 transition"
+              >
+                Sudah diizinkan? Muat ulang
+              </button>
+            )}
             {showPermissionCard && (
               <button
-                onClick={requestPermission}
+                onClick={async () => {
+                  const res = await requestPermission();
+                  if (res === "granted") {
+                    new window.Notification("Izin notifikasi diberikan", {
+                      body: "Pengingat minum akan muncul di system notification.",
+                      tag: "permission-granted",
+                    });
+                    const push = await subscribeToPush();
+                    if (!push.ok) {
+                      notify(`Push belum aktif: ${push.reason || "unknown"}`, "error");
+                    }
+                  } else if (res === "denied") {
+                    notify(
+                      "Izin notifikasi diblokir. Buka pengaturan situs di browser lalu izinkan Notifikasi.",
+                      "error"
+                    );
+                  }
+                }}
                 className="shrink-0 px-5 py-2.5 rounded-xl bg-sky-400 text-white text-sm font-bold hover:bg-sky-500 active:scale-95 transition"
               >
                 Allow
               </button>
+            )}
+            {permission === "granted" && (
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={async () => {
+                    const res = await subscribeToPush();
+                    if (res.ok) {
+                      notify("Push notification siap");
+                    } else {
+                      notify(
+                        `Gagal aktifkan push: ${res.reason || "unknown"}`,
+                        "error"
+                      );
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white border border-sky-200 text-sky-600 text-sm font-semibold hover:bg-sky-50 transition"
+                >
+                  Aktifkan Push
+                </button>
+                <button
+                  onClick={async () => {
+                    if (permission !== "granted") {
+                      const res = await requestPermission();
+                      if (res !== "granted") {
+                        notify(
+                          "Izin notifikasi belum diizinkan. Cek pengaturan situs browser kamu.",
+                          "error"
+                        );
+                        return;
+                      }
+                    }
+
+                    new window.Notification("Test notifikasi", {
+                      body: "Notifikasi system aktif dari Hydration Tracker",
+                      tag: "client-test",
+                    });
+
+                    try {
+                      await reminderApi.testPush();
+                      notify("Push test terkirim ke perangkat kamu");
+                    } catch (error) {
+                      notify(error.message, "error");
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-sky-400 text-white text-sm font-semibold hover:bg-sky-500 active:scale-95 transition"
+                >
+                  Test Notifikasi
+                </button>
+              </div>
             )}
           </div>
 

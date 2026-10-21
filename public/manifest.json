@@ -1,0 +1,17 @@
+{
+  "name": "Hydration Tracker",
+  "short_name": "Hydrate",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "description": "Track your water intake and get reminders",
+  "icons": [
+    {
+      "src": "/assets/logo-DHHYaMw7.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

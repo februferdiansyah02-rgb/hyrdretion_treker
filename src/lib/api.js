@@ -51,6 +51,13 @@ export const reminderApi = {
     }),
   due: () => request("/reminders/due"),
   history: () => request("/reminders/history"),
+  getVapidPublicKey: () => request("/push/vapid-public-key"),
+  savePushSubscription: (subscription) =>
+    request("/push/subscribe", {
+      method: "POST",
+      body: JSON.stringify({ subscription }),
+    }),
+  testPush: () => request("/push/test", { method: "POST" }),
 };
 
 export const drinksApi = {

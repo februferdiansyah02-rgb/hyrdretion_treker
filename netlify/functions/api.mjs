@@ -8,6 +8,7 @@ import { requireAuth } from "../../backend/middleware/auth.js";
 import drinks from "../../backend/controlers/drinkcontroler.js";
 import notes from "../../backend/controlers/notescontroler.js";
 import reminders from "../../backend/controlers/remindcontroler.js";
+import push from "../../backend/controlers/pushcontroller.js";
 
 // Urutan sama seperti di backend/Routes: path spesifik dulu, baru /:id.
 const routes = [
@@ -26,6 +27,10 @@ const routes = [
   ["POST", "/api/reminders", reminders.createReminder],
   ["PUT", "/api/reminders/:id", reminders.updateReminder],
   ["DELETE", "/api/reminders/:id", reminders.deleteReminder],
+
+  ["GET", "/api/push/vapid-public-key", push.getVapidPublicKey],
+  ["POST", "/api/push/subscribe", push.saveSubscription],
+  ["POST", "/api/push/test", push.testPush],
 ];
 
 // Cocokkan "/api/drinks/12" dengan "/api/drinks/:id" -> { id: "12" }.

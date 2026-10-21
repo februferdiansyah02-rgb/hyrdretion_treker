@@ -33,6 +33,28 @@ const isBraveBrowser = async () => {
   return false;
 };
 
+// Chrome Android nggak mengizinkan `new Notification()` — harus lewat service worker.
+export const showLocalNotification = async (title, options = {}) => {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.showNotification(title, options);
+      return true;
+    } catch (e) {
+      console.error("showNotification via SW gagal", e);
+    }
+  }
+  try {
+    if ("Notification" in window && window.Notification.permission === "granted") {
+      new window.Notification(title, options);
+      return true;
+    }
+  } catch (e) {
+    console.error("new Notification gagal", e);
+  }
+  return false;
+};
+
 export const subscribeToPush = async () => {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return { ok: false, reason: "unsupported" };

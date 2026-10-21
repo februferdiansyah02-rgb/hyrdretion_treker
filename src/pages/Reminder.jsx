@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Bell, Clock, Plus, Trash2, X, Loader2 } from "lucide-react";
 
 import { reminderApi } from "../lib/api";
-import { subscribeToPush } from "../lib/push";
+import { showLocalNotification, subscribeToPush } from "../lib/push";
 
 const INTERVAL_OPTIONS = [30, 45, 60, 90, 120];
 
 const PERMISSION_LABEL = {
   granted: "Active reminder",
   denied: "Reminder blocked by the browser",
-  default: "Reminder persmission has not yet been requested",
+  default: "Izin notifikasi belum diminta",
   unsupported: "The browser doesn't support reminders.",
 };
 
@@ -153,6 +153,7 @@ export default function Reminder({ permission, requestPermission }) {
   };
 
   const showPermissionCard = permission === "default";
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   return (
     <div className="w-full max-w-7xl mx-auto">
@@ -212,16 +213,33 @@ export default function Reminder({ permission, requestPermission }) {
 
                 <p className="text-xs text-gray-400 mt-0.5">
                   {permission === "granted"
-                    ? "System notification akan tetap muncul meski aplikasi ditutup (via Web Push)."
+                    ? "Notifikasi akan muncul sebagai popup system, tetap jalan meski app ditutup (Web Push). Berlaku di laptop & HP."
                     : permission === "denied"
-                      ? "Klik ikon 🔒/tuning di address bar → Site settings → Notifications → pilih Allow, lalu muat ulang halaman ini."
+                      ? isMobile
+                        ? "Buka menu ⋮ di Chrome → Setelan situs → Notifikasi → izinkan situs ini, lalu muat ulang halaman."
+                        : "Klik ikon 🔒/tuning di address bar → Site settings → Notifications → pilih Allow, lalu muat ulang halaman ini."
                       : permission === "unsupported"
-                        ? "The alarm will still appear within the app, but the browser reminder will not show up."
-                        : "Allow notifications so the alarm appears even when the app is closed."}
+                        ? "Browser ini (kemungkinan WebView dari app lain, misal WhatsApp/Instagram) nggak mendukung notifikasi. Buka link ini di Chrome atau Safari, lalu klik tombol di samping."
+                        : "Izinkan notifikasi biar pengingat minum muncul sebagai popup system di semua perangkat kamu."}
                 </p>
               </div>
             </div>
 
+            {permission === "unsupported" && (
+              <button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    notify("Link disalin. Buka di Chrome / Safari, bukan dari dalam app.");
+                  } catch {
+                    notify("Gagal menyalin. Salin manual URL halaman ini.", "error");
+                  }
+                }}
+                className="shrink-0 px-5 py-2.5 rounded-xl bg-white border border-amber-300 text-amber-600 text-sm font-bold hover:bg-amber-50 active:scale-95 transition"
+              >
+                Salin Link
+              </button>
+            )}
             {permission === "denied" && (
               <button
                 onClick={() => window.location.reload()}
@@ -235,7 +253,7 @@ export default function Reminder({ permission, requestPermission }) {
                 onClick={async () => {
                   const res = await requestPermission();
                   if (res === "granted") {
-                    new window.Notification("Izin notifikasi diberikan", {
+                    await showLocalNotification("Izin notifikasi diberikan", {
                       body: "Pengingat minum akan muncul di system notification.",
                       tag: "permission-granted",
                     });
@@ -286,7 +304,7 @@ export default function Reminder({ permission, requestPermission }) {
                       }
                     }
 
-                    new window.Notification("Test notifikasi", {
+                    await showLocalNotification("Test notifikasi", {
                       body: "Notifikasi system aktif dari Hydration Tracker",
                       tag: "client-test",
                     });

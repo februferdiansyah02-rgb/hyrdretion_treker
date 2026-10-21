@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { reminderApi } from "../lib/api";
 import { playReminderSound, unlockAudio } from "../lib/reminderSound";
-import { registerServiceWorker, subscribeToPush } from "../lib/push";
+import { registerServiceWorker, showLocalNotification, subscribeToPush } from "../lib/push";
 
 const POLL_INTERVAL = 15000;
 const MAX_VISIBLE_ALERTS = 3;
@@ -79,7 +79,7 @@ export default function useReminderAlarm() {
 
       if (permissionRef.current === "granted") {
         fired.forEach((reminder) => {
-          new window.Notification(reminder.title, {
+          showLocalNotification(reminder.title, {
             body: reminder.message,
             tag: reminder.uid,
           });

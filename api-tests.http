@@ -1,0 +1,224 @@
+ 
+
+@baseUrl = http://localhost:3000
+@token = GANTI_DENGAN_ACCESS_TOKEN_LO
+
+ GET {{baseUrl}}/
+Accept: application/json
+ 
+GET {{baseUrl}}/api/drinks
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Tambah drink (amount harus angka positif)
+POST {{baseUrl}}/api/drinks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 250
+}
+ 
+POST {{baseUrl}}/api/drinks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 500,
+  "time": "2026-10-21T08:00:00.000Z"
+}
+ 
+POST {{baseUrl}}/api/drinks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": -5
+}
+ 
+POST {{baseUrl}}/api/drinks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 250,
+  "time": "bukan tanggal"
+}
+ 
+DELETE {{baseUrl}}/api/drinks/1
+Authorization: Bearer {{token}}
+Accept: application/json
+ 
+GET {{baseUrl}}/api/notes
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### List notifikasi dengan goal custom
+GET {{baseUrl}}/api/notes?goal=3000
+Authorization: Bearer {{token}}
+Accept: application/json
+ 
+GET {{baseUrl}}/api/reminders
+Authorization: Bearer {{token}}
+Accept: application/json
+ POST {{baseUrl}}/api/reminders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "time": "10:00",
+  "type": "custom",
+  "enabled": true
+}
+ 
+POST {{baseUrl}}/api/reminders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "time": "25:99"
+}
+ POST {{baseUrl}}/api/reminders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "time": "10:00",
+  "type": "bogus"
+}
+
+### Update reminder (ganti :id)
+PUT {{baseUrl}}/api/reminders/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "time": "12:00"
+}
+ 
+PUT {{baseUrl}}/api/reminders/999999
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "time": "12:00"
+} 
+DELETE {{baseUrl}}/api/reminders/1
+Authorization: Bearer {{token}}
+Accept: application/json
+ 
+GET {{baseUrl}}/api/reminders/due
+Authorization: Bearer {{token}}
+Accept: application/json
+ 
+GET {{baseUrl}}/api/reminders/history
+Authorization: Bearer {{token}}
+Accept: application/json
+ 
+GET {{baseUrl}}/api/reminders/auto
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+PUT {{baseUrl}}/api/reminders/auto
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "enabled": true,
+  "startTime": "07:00",
+  "endTime": "22:00",
+  "intervalMinutes": 60
+}
+
+
+PUT {{baseUrl}}/api/reminders/auto
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "startTime": "22:00",
+  "endTime": "07:00"
+}
+
+
+PUT {{baseUrl}}/api/reminders/auto
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "intervalMinutes": 5
+}
+
+
+POST {{baseUrl}}/api/reminders/reset/0
+Authorization: Bearer {{token}}
+Accept: application/json
+ 
+ GET {{baseUrl}}/api/push/vapid-public-key
+Authorization: Bearer {{token}}
+Accept: application/json
+ POST {{baseUrl}}/api/push/subscribe
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subscription": {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/fake-endpoint",
+    "keys": {
+      "p256dh": "BEl62iUYgUivxIkv69yViEuiBIaI8sgAz2kdG0k9eq8k3kQ",
+      "auth": "aBcD1eF2gH3iJ4kL5mN6oP7qR8sT9uV0"
+    }
+  }
+}
+
+### Kasus error: subscription tanpa keys -> harus 400
+POST {{baseUrl}}/api/push/subscribe
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subscription": {
+    "endpoint": "https://contoh.com/push"
+  }
+}
+
+### Kirim test push ke semua device user ini
+POST {{baseUrl}}/api/push/test
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### ==========================================================
+### 7. KASUS ERROR AUTH
+### ==========================================================
+### Tanpa token -> 401 "Token tidak ditemukan" (atau 200 mode=dev-bypass di lokal)
+GET {{baseUrl}}/api/drinks
+Accept: application/json
+
+### Token ngaco -> harus 401 "Token tidak valid atau sudah kadaluarsa"
+GET {{baseUrl}}/api/drinks
+Authorization: Bearer token-ngaco-123
+Accept: application/json
+
+### Endpoint gak ada -> harus 404
+GET {{baseUrl}}/api/tidak-ada
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### ==========================================================
+### 8. TIGA CARA KIRIM TOKEN
+### ==========================================================
+### 8a. Bearer header -> respons header "X-Auth-Mode: bearer"
+GET {{baseUrl}}/api/drinks
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### 8b. Query string -> respons header "X-Auth-Mode: query"
+###     ini yang bisa dibuka langsung di address bar browser
+GET {{baseUrl}}/api/drinks?token={{token}}
+Accept: application/json
+
+### 8c. Tanpa token -> respons header "X-Auth-Mode: dev-bypass"
+###     hanya di development lokal (DEV_AUTH_BYPASS), nonaktif di produksi
+GET {{baseUrl}}/api/drinks
+Accept: application/json

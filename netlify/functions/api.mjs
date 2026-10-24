@@ -1,7 +1,4 @@
-// Menjalankan controller Express di folder backend/ sebagai Netlify Function,
-// supaya /api/* tetap jalan setelah deploy (tanpa server yang harus selalu hidup).
-// Dua import pertama memastikan paket yang di-require oleh backend/config/supabase.js
-// ikut dibundel ke dalam function (tanpa ini function error "Cannot find module").
+ 
 import "dotenv";
 import "@supabase/supabase-js";
 import { requireAuth } from "../../backend/middleware/auth.js";
@@ -9,8 +6,9 @@ import drinks from "../../backend/controlers/drinkcontroler.js";
 import notes from "../../backend/controlers/notescontroler.js";
 import reminders from "../../backend/controlers/remindcontroler.js";
 import push from "../../backend/controlers/pushcontroller.js";
-
-// Urutan sama seperti di backend/Routes: path spesifik dulu, baru /:id.
+ 
+process.env.DEV_AUTH_BYPASS = "false";
+ 
 const routes = [
   ["GET", "/api/drinks", drinks.getDrinks],
   ["POST", "/api/drinks", drinks.addDrink],
@@ -32,8 +30,7 @@ const routes = [
   ["POST", "/api/push/subscribe", push.saveSubscription],
   ["POST", "/api/push/test", push.testPush],
 ];
-
-// Cocokkan "/api/drinks/12" dengan "/api/drinks/:id" -> { id: "12" }.
+ 
 const matchPath = (pattern, pathname) => {
   const patternParts = pattern.split("/");
   const pathParts = pathname.split("/");
@@ -49,8 +46,7 @@ const matchPath = (pattern, pathname) => {
   }
   return params;
 };
-
-// Objek `res` kecil yang meniru Express: res.status(code).json(body).
+ 
 const createResponse = () => {
   const res = {
     statusCode: 200,

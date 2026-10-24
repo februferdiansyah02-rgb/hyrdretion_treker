@@ -185,7 +185,7 @@ export default function Analysis({ onOpenNotes }) {
     const paginatedDrinks = historyDrinks.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
-    );
+    );``
 
     // Pastikan halaman tetap valid jika data berkurang setelah refresh.
     useEffect(() => {

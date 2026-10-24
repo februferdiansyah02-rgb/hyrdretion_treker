@@ -16,10 +16,31 @@ const request = async (path, options = {}) => {
     headers.Authorization = `Bearer ${session.access_token}`;
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
+  let response = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers,
   });
+
+  // Token bisa saja kedaluwarsa (access token Supabase umur ~1 jam) atau
+  // sesinya sudah dicabut di server. Coba refresh sekali lalu ulangi request.
+  if (response.status === 401) {
+    const { data: refreshed, error: refreshError } =
+      await supabase.auth.refreshSession();
+    const newToken = refreshed?.session?.access_token;
+
+    if (!refreshError && newToken && newToken !== session?.access_token) {
+      response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: { ...headers, Authorization: `Bearer ${newToken}` },
+      });
+    }
+
+    // Masih 401 setelah refresh -> sesi emang sudah mati, paksa login ulang.
+    if (response.status === 401) {
+      await supabase.auth.signOut().catch(() => {});
+      throw new Error("Sesi kamu sudah berakhir. Silakan login ulang.");
+    }
+  }
 
   const result = await response.json().catch(() => ({}));
 

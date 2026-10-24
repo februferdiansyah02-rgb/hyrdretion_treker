@@ -9,7 +9,7 @@ const remindRoutes = require("./Routes/remindroutes");
 const notesRoutes = require("./Routes/notesroutes");
 const pushRoutes = require("./Routes/pushroutes");
 
-const { requireAuth } = require("./middleware/auth");
+const { requireAuth, isDevBypassEnabled } = require("./middleware/auth");
 const { runReminderPushJob } = require("./jobs/reminderPushJob");
 
 const app = express();
@@ -30,10 +30,16 @@ app.use("/api/drinks", requireAuth, drinkRoutes);
 app.use("/api/reminders", requireAuth, remindRoutes);
 app.use("/api/notes", requireAuth, notesRoutes);
 app.use("/api/push", requireAuth, pushRoutes);
-
-// Jalankan job tiap menit buat kirim Web Push pas waktunya (bisa jalan meski app ditutup)
+ 
 cron.schedule("* * * * *", runReminderPushJob);
 
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
+
+  if (isDevBypassEnabled()) {
+    console.warn(
+      "\n[DEV] Auth bypass aktif: endpoint /api/* bisa dipanggil tanpa token.\n" +
+        "      Hanya aktif di development lokal, otomatis nonaktif di produksi.\n"
+    );
+  }
 });

@@ -373,9 +373,7 @@ const getHistory = async (req, res) => {
     })),
   });
 };
-
-// POST /api/reminders/reset/:id
-// id = 0 berarti reset auto reminder, selain itu reset pengingat custom.
+ 
 const resetReminderFired = async (req, res) => {
   const id = Number(req.params.id);
 

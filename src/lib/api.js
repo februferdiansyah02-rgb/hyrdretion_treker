@@ -21,11 +21,11 @@ const request = async (path, options = {}) => {
     headers,
   });
 
-  // Token bisa saja kedaluwarsa (access token Supabase umur ~1 jam) atau
-  // sesinya sudah dicabut di server. Coba refresh sekali lalu ulangi request.
+  // Jika token tidak valid, coba refresh sesi sekali.
   if (response.status === 401) {
     const { data: refreshed, error: refreshError } =
       await supabase.auth.refreshSession();
+
     const newToken = refreshed?.session?.access_token;
 
     if (!refreshError && newToken && newToken !== session?.access_token) {
@@ -35,7 +35,7 @@ const request = async (path, options = {}) => {
       });
     }
 
-    // Masih 401 setelah refresh -> sesi emang sudah mati, paksa login ulang.
+    // Jika tetap gagal, pengguna perlu login ulang.
     if (response.status === 401) {
       await supabase.auth.signOut().catch(() => {});
       throw new Error("Sesi kamu sudah berakhir. Silakan login ulang.");
@@ -93,4 +93,27 @@ export const drinksApi = {
 
 export const notesApi = {
   list: (goal = 2000) => request(`/notes?goal=${goal}`),
+};
+
+// Daily check-in, poin, katalog hadiah, dan voucher.
+export const rewardsApi = {
+  summary: () => request("/rewards"),
+
+  checkIn: () =>
+    request("/rewards/check-in", {
+      method: "POST",
+    }),
+
+  catalog: () => request("/rewards/catalog"),
+
+  redeem: (rewardId, requestId) =>
+    request("/rewards/redeem", {
+      method: "POST",
+      body: JSON.stringify({
+        rewardId,
+        requestId,
+      }),
+    }),
+
+  vouchers: () => request("/rewards/vouchers"),
 };

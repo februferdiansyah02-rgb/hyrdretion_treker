@@ -21,6 +21,7 @@ import Analysis from "./pages/Analysis";
 import Reminder from "./pages/Reminder";
 import Notes from "./pages/Notes";
 import Profile from "./pages/Profile";
+import Rewards from "./pages/Rewards";
 
 const isToday = (value) => {
   const drinkDate = new Date(value);
@@ -132,6 +133,8 @@ function MainLayout() {
             {activeTab === "Notification" && <Notes />}
 
             {activeTab === "Profile" && <Profile />}
+
+            {activeTab === "Rewards" && <Rewards />}
 
           </div>
         </main>

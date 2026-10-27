@@ -8,6 +8,7 @@ const drinkRoutes = require("./Routes/drinkroutes");
 const remindRoutes = require("./Routes/remindroutes");
 const notesRoutes = require("./Routes/notesroutes");
 const pushRoutes = require("./Routes/pushroutes");
+const rewardRoutes = require("./Routes/rewardroutes");
 
 const { requireAuth, isDevBypassEnabled } = require("./middleware/auth");
 const { runReminderPushJob } = require("./jobs/reminderPushJob");
@@ -30,6 +31,7 @@ app.use("/api/drinks", requireAuth, drinkRoutes);
 app.use("/api/reminders", requireAuth, remindRoutes);
 app.use("/api/notes", requireAuth, notesRoutes);
 app.use("/api/push", requireAuth, pushRoutes);
+app.use("/api/rewards", rewardRoutes);
  
 cron.schedule("* * * * *", runReminderPushJob);
 
